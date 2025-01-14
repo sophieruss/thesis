@@ -1,0 +1,19 @@
+1. High level - Am I implementing these three pieces in Agda
+2. Does putting this in Agda 'prove it truly works' because Agda type checks 
+    How is it deterministic
+    Soundness vs completeness
+    Am I making a type system?
+
+
+3. What is Clements talking about for indexing a set of instructions
+4. 530 - We made a language
+
+
+
+Not type checking. BIg pic - running machine and seeing if same states at the end/in sync?
+    Only host and sentry 
+    Start with arithmetic
+    than try either memory or control flow
+    Use python - depending on put pc, do the proper step
+
+    
