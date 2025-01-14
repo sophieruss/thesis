@@ -3,20 +3,20 @@
 #include <variant>
 #include "commands.h"
 
-                                            // naturals
-int pc = 0;                                 // program counter        (why is this not a r15)
+int n;                                      // naturals
+int pc = 0;                                 // program counter
 int r[32] = {0};                            // registers r -> X         
 int R[32] = {0};                            // register file r -> Z
-std::unordered_map<int, int> M;             // memory
-int S = 0;                                  // mode bit
 
-// what is the best way to represent registers. 
-// should they be their own data type?
-// does it even matter?  what does it need to store? whether in use?
+int hash(int z){
+    return (z * 31) ^ (z >> 16);
+}
 
+std::unordered_map<int, int> M;             // hash storage Z -> Z
 
 using commands = std::variant<add, addi, sub, jump, bgtz>;
 std::unordered_map<int, commands> program;
+
 
 void fun_add(int dest, int src, int temp){
     add cmd = {dest, src, temp};
@@ -24,11 +24,9 @@ void fun_add(int dest, int src, int temp){
     int n_0 = R[src];
     int n_1 = R[temp];
     int n_2 = n_0 + n_1;
-    if (S == 1) {
-        R[dest] = n_2;
-        pc++;
-    } 
-    else {}
+    
+    R[dest] = n_2;
+    pc++;
 }
 
 void fun_addi(int dest, int src, int n_1){
@@ -36,11 +34,9 @@ void fun_addi(int dest, int src, int n_1){
     program[pc] = cmd;
     int n_0 = R[src];
     int n_2 = n_0 + n_1;
-    if (S == 1) {
-        R[dest] = n_2;
-        pc++;
-    } 
-    else {}
+
+    R[dest] = n_2;
+    pc++;
 }
 
 void fun_sub(int dest, int src, int temp){
@@ -49,27 +45,24 @@ void fun_sub(int dest, int src, int temp){
     int n_0 = R[src];
     int n_1 = R[temp];
     int n_2 = n_0 - n_1;
-    if (S == 1) {
-        R[dest] = n_2;
-        pc++;
-    }
-    else {}
+
+    R[dest] = n_2;
+    pc++;
 }
 
 void fun_jump(int n){
     jump cmd = {n};
     program[pc] = cmd;
-    if (S == 1) {
-        pc = n;
-    }
-    else {}
+
+    pc = n;
 }
 
 void fun_bgtz_g(int src, int n){
     bgtz cmd = {src, n};
     program[pc] = cmd;
     int n_1 = R[src];
-    if (S==1 && n_1 > 0) {
+    
+    if (n_1 > 0) {
         pc = n;
     }
     else {};
@@ -79,13 +72,12 @@ void fun_bgtz_l(int src, int n){
     bgtz cmd = {src, n};
     program[pc] = cmd;
     int n_1 = R[src];
-    if (S==1 && n_1 <= 0) {
+
+    if (n_1 <= 0) {
         pc++;
     }
     else {};
 }
-
-
 
 void print_program() {
     std::cout << "Program: " << std::endl;
@@ -105,11 +97,9 @@ void print_program() {
 }
 
 
-
 int main() {
-    std::cout << "hello host" << std::endl;
+    std::cout << "hello sentry" << std::endl;
 
-    S = 0;
     R[1] = 1;
     R[2] = 2;
     R[3] = 3;
@@ -121,4 +111,12 @@ int main() {
 
     return 0;
 }
-
+// int main(){
+    // fun_add(1, 2, 3);
+    // fun_addi(1, 2, 3);
+    // fun_sub(1, 2, 3);
+    // fun_jump(1);
+    // fun_bgtz_g(1, 2);
+    // fun_bgtz_l(1, 2);
+    // return 0;
+// }

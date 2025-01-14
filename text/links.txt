@@ -1,0 +1,9 @@
+Links & scratch thoughts:
+
+
+https://github.com/AndrasKovacs/SemanticsWithApplications (example)
+Verified Functional Programming in Agda by Aaron Stump (good intro)
+https://plfa.github.io/ - big step
+
+
+https://williamdemeo.github.io/2014/02/27/learn-you-an-agda/ nice agda refresh

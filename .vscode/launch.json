@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/host",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/opt/homebrew/opt/llvm/bin/lldb",  // Ensure GDB is correctly set up
+            "preLaunchTask": "build",
+            "miDebuggerArgs": "",
+            "logging": { "moduleLoad": false },
+            "cwd": "${workspaceFolder}",
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "macOS",
+            "includePath": [
+                "${workspaceFolder}/**",                           // Your project's source files
+                "/usr/local/include",                               // Common system includes
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1", // C++ standard library
+                "/Library/Developer/CommandLineTools/usr/include",  // System headers
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include",  // More system headers
+                "/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include",  // Clang-specific includes
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks" // macOS frameworks
+            ],
+            "defines": [],
+            "compilerPath": "/Library/Developer/CommandLineTools/usr/bin/clang++",  // Path to Clang++
+            "cStandard": "c11",                     // C standard (not required if only using C++)
+            "cppStandard": "c++17",                 // Set C++17 for IntelliSense
+            "intelliSenseMode": "macos-clang-x64"   // Clang on macOS
+        }
+    ],
+    "version": 4
+}

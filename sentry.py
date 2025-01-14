@@ -2,8 +2,10 @@
 pc = 0          # pc
 r = [0] * 32    # registers r -> X
 R = [0] * 32    # register file r -> Z
-M = {}          # memory
-S = 0           # mode bit
+                # hash()
+M = {}          # hash storage Z -> Z
+
+
 program = {}
 
 from commands import Add, Addi, Sub, Jump, Bgtz
@@ -16,9 +18,9 @@ def fun_add(dest, src, temp):
     n_0 = R[src]
     n_1 = R[temp]
     n_2 = n_0 + n_1
-    if S == 1:
-        R[dest] = n_2
-        pc += 1
+    
+    R[dest] = n_2
+    pc += 1
 
 def fun_addi(dest, src, n_1):
     global pc, R, S, program
@@ -26,9 +28,9 @@ def fun_addi(dest, src, n_1):
     program[pc] = cmd
     n_0 = R[src]
     n_2 = n_0 + n_1
-    if S == 1:
-        R[dest] = n_2
-        pc += 1
+
+    R[dest] = n_2
+    pc += 1
 
 def fun_sub(dest, src, temp):
     global pc, R, S, program
@@ -37,23 +39,23 @@ def fun_sub(dest, src, temp):
     n_0 = R[src]
     n_1 = R[temp]
     n_2 = n_0 - n_1
-    if S == 1:
-        R[dest] = n_2
-        pc += 1
+
+    R[dest] = n_2
+    pc += 1
 
 def fun_jump(n):
     global pc, program, S
     cmd = Jump(n)
     program[pc] = cmd
-    if S == 1:
-        pc = n
+
+    pc = n
 
 def fun_bgtz_g(src, n):
     global pc, R, S, program
     cmd = Bgtz(src, n)
     program[pc] = cmd
     n_1 = R[src]
-    if S == 1 and n_1 > 0:
+    if n_1 > 0:
         pc = n
 
 def fun_bgtz_l(src, n):
@@ -61,7 +63,7 @@ def fun_bgtz_l(src, n):
     cmd = Bgtz(src, n)
     program[pc] = cmd
     n_1 = R[src]
-    if S == 1 and n_1 <= 0:
+    if n_1 <= 0:
         pc += 1
 
 
@@ -75,9 +77,8 @@ def print_program():
 def main():
     global S, R, pc
 
-    print("hello host")
+    print("hi sentry")
     
-    S = 1
     R[1] = 1
     R[2] = 2
     R[3] = 3
