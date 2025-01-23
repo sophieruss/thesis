@@ -1,4 +1,6 @@
 
+import json
+
 pc = 0          # pc
 r = [0] * 32    # registers r -> X
 R = [0] * 32    # register file r -> Z
@@ -8,6 +10,8 @@ program = {}    # Z -> commands
 getQ = []
 trace = []       
 from commands import Add, Addi, Sub, Jump, Bgtz, Sw, Lw_U, Lw_T, Get, Put, trustedMode, untrustedMode, alert, returnn
+from trace_file import send_trace
+
 
 
 def fun_add(dest, src, temp):
@@ -25,6 +29,7 @@ def fun_add(dest, src, temp):
         pc += 1
     else:
         trace = []
+    send_trace(trace)
     
 
 def fun_addi(dest, src, n_1):
@@ -39,6 +44,8 @@ def fun_addi(dest, src, n_1):
         pc += 1
     else:
         trace = []
+    send_trace(trace)
+
 
 def fun_sub(dest, src, temp):
     global pc, R, S, program, trace
@@ -53,6 +60,8 @@ def fun_sub(dest, src, temp):
         pc += 1
     else:
         trace = []
+    send_trace(trace)
+
         
         
 
@@ -66,6 +75,8 @@ def fun_jump(n):
 
     else:
         trace = []
+    send_trace(trace)
+
 
 def fun_bgtz_g(src, n):
     global pc, R, S, program, trace
@@ -78,6 +89,8 @@ def fun_bgtz_g(src, n):
 
     else:
         trace = []
+    send_trace(trace)
+
 
 def fun_bgtz_l(src, n):
     global pc, R, S, program, trace
@@ -87,6 +100,8 @@ def fun_bgtz_l(src, n):
     if S == 1 and n_1 <= 0:
         trace = [program[pc], n_1, pc+1]
         pc += 1
+    send_trace(trace)
+
         
 def fun_load_unt(src, dest):
     global pc, R, S, program, trace
@@ -100,6 +115,8 @@ def fun_load_unt(src, dest):
         pc += 1
     else:
         trace = []
+    send_trace(trace)
+
 
 def fun_load(src, dest):
     global pc, R, S, program, trace
@@ -113,6 +130,8 @@ def fun_load(src, dest):
         pc += 1
     else:
         trace = []
+    send_trace(trace)
+
         
 def fun_store(src, dest):
     global pc, R, S, program, trace
@@ -126,6 +145,7 @@ def fun_store(src, dest):
         pc += 1
     else:
         trace = []
+    send_trace(trace)
         
 def fun_get(dest):
     global pc, R, S, program, trace
@@ -142,7 +162,8 @@ def fun_get(dest):
         pc += 1
     else:
         trace = []
-        
+    send_trace(trace)
+    
 def fun_put(src):
     global pc, R, S, program, trace
     cmd = Put(src)
@@ -154,7 +175,8 @@ def fun_put(src):
         pc += 1
     else:
         trace = []
-
+    send_trace(trace)
+    
 def fun_enable():
     global S, program
     cmd = trustedMode()
@@ -175,6 +197,7 @@ def fun_alert():
     program[pc] = cmd
     if S == 1:
         trace = [program[pc]]
+    send_trace(trace)
 
 def fun_returnn():
     global program, trace
@@ -182,7 +205,7 @@ def fun_returnn():
     program[pc] = cmd
     if S == 1:
         trace = [program[pc]] 
-
+    send_trace(trace)
 
 def print_program():
     print(f"pc: {pc}")
@@ -193,7 +216,9 @@ def print_program():
 
 def main():
     global S, R, pc
-
+    
+    with open('trace_history.json', 'w') as f:
+        f.write('')
     print("hello host")
     
     S = 1
@@ -201,18 +226,18 @@ def main():
     R[2] = 2
     R[3] = 3
     
-    print_program()
+    # print_program()
 
-    fun_add(1, 2, 3)
+    # fun_add(1, 2, 3)
     fun_addi(4, 1, 5)
-    # fun_jump(0)
+    # # fun_jump(0)
     fun_sub(1, 4, 3)
     
     
-    print_program()
+    # print_program()
 
     return 0
 
 main()
 # 4257
-# how do I deal with trace values? It sends from host to sentry, but how?
+

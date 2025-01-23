@@ -3,13 +3,13 @@ pc = 0          # pc
 r = [0] * 32    # registers r -> X
 R = [0] * 32    # register file r -> Z
                 # hash()
-M = {}          # hash storage Z -> Z
-
-
+V = {}          # hash storage Z -> Z
 program = {}
-
+getQ = []
+putQ = []
+trace = []    # (command, [n0, n1, ...])
 from commands import Add, Addi, Sub, Jump, Bgtz
-
+from trace_file import read_trace
 
 def fun_add(dest, src, temp):
     global pc, R, S, program
@@ -65,6 +65,16 @@ def fun_bgtz_l(src, n):
     n_1 = R[src]
     if n_1 <= 0:
         pc += 1
+        
+def l_unt(dest, src):
+    global pc, R, S, program
+    cmd = Lw_U(src, dest)
+    program[pc] = cmd
+    n_1 = R[src]
+    n_2 = V[n_1]
+
+    R[dest] = n_2
+    pc += 1
 
 
 def print_program():
@@ -83,11 +93,15 @@ def main():
     R[2] = 2
     R[3] = 3
     
-    print_program()
-
-    fun_add(1, 2, 3)
+    global trace
+    trace = read_trace()
+    print(trace)
     
-    print_program()
+    # print_program()
+
+    # fun_add(1, 2, 3)
+    
+    # print_program()
 
     return 0
 
