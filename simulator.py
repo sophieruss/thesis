@@ -10,11 +10,11 @@ program = [None] * 100
 
 # I am not error checking at all. Assume the user is perfect. I.e. no R[32]
 
-# assume M[0] = 0                   # R[0] = 0
+# assume M[0] = 0, S[0] = 0
 
-program[0] = ["Lw_T", 0, 0]      # R[0] = 0
+program[0] = ["Lw_T", 0, 0]         # R[0] = 0
 program[1] = ["Addi", 1, 0, 1]      # R[1] = 1
-program[2] = ["Addi", 2, 1, 0]           # R[2] = 1
+program[2] = ["Addi", 2, 1, 0]      # R[2] = 1
 program[3] = ["Add", 3, 1, 2]       # R[3] = 2
 program[4] = ["Add", 4, 2, 3]       # R[4] = 3
 program[5] = ["Add", 5, 3, 4]       # R[5] = 5
