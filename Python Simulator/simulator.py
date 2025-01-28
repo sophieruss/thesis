@@ -9,7 +9,6 @@ program = [None] * 100
 # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377]
 
 # I am not error checking at all. Assume the user is perfect. I.e. no R[32]
-
 # assume M[0] = 0, S[0] = 0
 
 program[0] = ["Lw_T", 0, 0]         # R[0] = 0
@@ -38,13 +37,14 @@ def main():
     while program[pc]:
         if (parse_command(program[pc])):
             if pc == 8: 
-                # change reg 5 -> prog[6] and[7] should reject. only??? 
-                evil()
+                evil()              # R[5] = 500
+                                    # pc == 6 || 7 would reject
             if(parse_trace()):
                 pc += 1
             else:
                 print("Sentry rejects. Program halted.")
                 break
+    print("Program completed successfully.")
 main()  
 
     
