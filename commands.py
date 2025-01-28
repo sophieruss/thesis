@@ -14,7 +14,7 @@ class Addi:
 
 class Sub:
     def __init__(self, dest, src, temp):
-        self.commands = "sub"
+        self.command = "sub"
         self.dest = dest
         self.src = src
         self.temp = temp

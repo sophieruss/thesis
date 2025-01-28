@@ -12,6 +12,9 @@ trace = []
 from commands import Add, Addi, Sub, Jump, Bgtz, Sw, Lw_U, Lw_T, Get, Put, trustedMode, untrustedMode, alert, returnn
 from trace_file import send_trace
 
+# assumption
+M[0] = 0
+S = 1
 
 
 def fun_add(dest, src, temp):
@@ -29,7 +32,7 @@ def fun_add(dest, src, temp):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
     
 
 def fun_addi(dest, src, n_1):
@@ -44,7 +47,7 @@ def fun_addi(dest, src, n_1):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
 
 
 def fun_sub(dest, src, temp):
@@ -60,7 +63,7 @@ def fun_sub(dest, src, temp):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
 
         
         
@@ -75,7 +78,7 @@ def fun_jump(n):
 
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
 
 
 def fun_bgtz_g(src, n):
@@ -89,7 +92,7 @@ def fun_bgtz_g(src, n):
 
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
 
 
 def fun_bgtz_l(src, n):
@@ -100,7 +103,7 @@ def fun_bgtz_l(src, n):
     if S == 1 and n_1 <= 0:
         trace = [program[pc], n_1, pc+1]
         pc += 1
-    send_trace(trace)
+    return send_trace(trace)
 
         
 def fun_load_unt(src, dest):
@@ -115,7 +118,7 @@ def fun_load_unt(src, dest):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
 
 
 def fun_load(src, dest):
@@ -130,7 +133,7 @@ def fun_load(src, dest):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
 
         
 def fun_store(src, dest):
@@ -145,7 +148,7 @@ def fun_store(src, dest):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
         
 def fun_get(dest):
     global pc, R, S, program, trace
@@ -162,7 +165,7 @@ def fun_get(dest):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
     
 def fun_put(src):
     global pc, R, S, program, trace
@@ -175,7 +178,7 @@ def fun_put(src):
         pc += 1
     else:
         trace = []
-    send_trace(trace)
+    return send_trace(trace)
     
 def fun_enable():
     global S, program
@@ -197,7 +200,7 @@ def fun_alert():
     program[pc] = cmd
     if S == 1:
         trace = [program[pc]]
-    send_trace(trace)
+    return send_trace(trace)
 
 def fun_returnn():
     global program, trace
@@ -205,13 +208,48 @@ def fun_returnn():
     program[pc] = cmd
     if S == 1:
         trace = [program[pc]] 
-    send_trace(trace)
+    return send_trace(trace)
 
 def print_program():
-    print(f"pc: {pc}")
-    print(f"r[]: {' '.join(map(str, r))}")
-    print(f"R[]: {' '.join(map(str, R))}")
-    print()
+    print(f"host\tpc: {pc-1}\tR[]: {' '.join(map(str, R))}")
+
+    
+def parse_command(cmd):
+    if cmd[0] == "Add":
+        fun_add(cmd[1], cmd[2], cmd[3])
+    elif cmd[0] == "Addi":
+        fun_addi(cmd[1], cmd[2], cmd[3])
+    elif cmd[0] == "Sub":
+        fun_sub(cmd[1], cmd[2], cmd[3])
+    elif cmd[0] == "Jump":
+        fun_jump(cmd[1])
+    elif cmd[0] == "Bgtz":
+        if cmd[2] > 0:
+            fun_bgtz_g(cmd[1], cmd[2])
+        else:
+            fun_bgtz_l(cmd[1], cmd[2])
+    elif cmd[0] == "Sw":
+        fun_store(cmd[1], cmd[2])
+    elif cmd[0] == "Lw_U":
+        fun_load_unt(cmd[1], cmd[2])
+    elif cmd[0] == "Lw_T":
+        fun_load(cmd[1], cmd[2])
+    elif cmd[0] == "Get":
+        fun_get(cmd[1])
+    elif cmd[0] == "Put":
+        fun_put(cmd[1])
+    elif cmd[0] == "trustedMode":
+        fun_enable()
+    elif cmd[0] == "untrustedMode":
+        fun_disable()
+    elif cmd[0] == "alert":
+        fun_alert()
+    elif cmd[0] == "returnn":
+        fun_returnn()
+    else:
+        raise ValueError(f"Unknown command: {cmd[0]}")
+    print_program()
+    return 1
 
 
 def main():
@@ -226,18 +264,13 @@ def main():
     R[2] = 2
     R[3] = 3
     
-    # print_program()
+    print_program()
 
-    # fun_add(1, 2, 3)
-    fun_addi(4, 1, 5)
+    fun_add(1, 2, 3)
+    # fun_addi(4, 1, 5)
     # # fun_jump(0)
-    fun_sub(1, 4, 3)
-    
-    
-    # print_program()
+    # fun_sub(1, 4, 3)
+    print_program()
 
     return 0
-
-main()
-# 4257
 
