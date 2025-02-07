@@ -3,7 +3,6 @@ module basic where
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _+_; zero; suc)
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Equality
-open import Agda.Builtin.Sigma
 
 record Program : Set where
   constructor  [_]
@@ -27,6 +26,7 @@ prog : Program
 prog = [ 5 ]
 
 st : State
+-- st = [ 0 ]
 st = [ 10 ]
 
 st' : State
