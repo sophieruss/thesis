@@ -1,0 +1,10 @@
+Lw_T 0 0
+Addi 4 0 25
+Addi 1 0 5
+Add 0 0 1
+Bgtz 4 3
+Jump 5
+Put 0 
+
+
+# Bgtz reg_being_compared, pc_jump_to 

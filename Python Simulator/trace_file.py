@@ -43,6 +43,11 @@ def read_trace():
         cmd = Get(cmd['dest'])
     elif cmd['command'] == 'put':
         cmd = Put(cmd['src'])
+    elif cmd['command'] == 'alert':
+        cmd = alert()
+    elif cmd['command'] == 'returnn':   
+        cmd = returnn()
+        
     else:
         raise ValueError(f"Unknown command: {cmd['command']}")
         
