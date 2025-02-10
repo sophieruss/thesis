@@ -18,13 +18,7 @@ class sentry:
         # assumption
         self.S[0] = 0
 
-    def fun_accept(self, R_, S_, trace_, putQ_, getQ_, pc_): 
-        self.R = R_
-        self.S = S_
-        self.trace = trace_
-        self.putQ = putQ_
-        self.getQ = getQ_
-        self.pc = pc_  
+    def fun_accept(self): 
         return 1  
         
     def fun_reject(self):
@@ -56,7 +50,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3 and rule4:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -82,8 +76,7 @@ class sentry:
         elif rule1 and rule2 and rule3:
             R_ = self.R.copy()
             # return self.fun_accept()
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
-
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -106,7 +99,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -122,7 +115,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -144,7 +137,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3 and rule4:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -163,7 +156,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
             
@@ -184,7 +177,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
         
@@ -206,7 +199,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
         
@@ -228,7 +221,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
         
@@ -249,7 +242,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -269,7 +262,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
         
@@ -285,7 +278,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1:
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()
 
@@ -300,8 +293,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1:
-            # pass
-            return self.fun_accept(self.R, self.S, self.trace, self.putQ, self.getQ, self.pc)
+            return self.fun_accept()
         else:
             return self.fun_reject()   
             
@@ -326,7 +318,7 @@ def parse_trace(self):
     elif self.trace[0].command == "jump":
         ret = self.fun_jump(self.trace[0].n)
     elif self.trace[0].command == "bgtz":
-        if self.trace[0].n > 0:
+        if self.R[self.trace[0].src] > 0:
             ret = self.fun_bgtz_g(self.trace[0].src, self.trace[0].n)
         else:
             ret = self.fun_bgtz_l(self.trace[0].src, self.trace[0].n)

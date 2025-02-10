@@ -32,8 +32,9 @@ def main():
     while prog[h.pc]:
         print(h.pc)
         ctr += 1
-        if ctr > 10:
-            break
+        if ctr > 50:
+            print("Program is taking too long to execute")
+            return
         if (parse_command(h, prog[h.pc])):
             # if h.pc == 8: 
             #     s.evil()                # R[5] = 500
