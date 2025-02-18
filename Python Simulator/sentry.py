@@ -22,12 +22,12 @@ class sentry:
         return 1  
         
     def fun_reject(self):
-        self.pc = 0
+        self.pc = -1
         print("rejected")
         return 0
         
     def fun_empty(self):
-        pass
+        self.pc += 1                    # TODO: is this correct?
         return 2
 
 
@@ -39,17 +39,18 @@ class sentry:
         n_1 = self.R[temp]              # == trace[1][1]   val at tmp
         n_2 = n_0 + n_1                 # == trace[1][2]   val at dest
         
-        self.R[dest] = n_2              # put here?  
-        self.pc += 1
+        
         # rule1 = self.program[self.pc] == trace[0]     # check cmd, dest, src, temp - but also I literally got it from trace ?? 
         rule1 = True
         rule2 = n_0 == self.trace[1][0]
-        rule3 = n_1 == self.trace[1][1]        # false bc hasnt updated calculation
+        rule3 = n_1 == self.trace[1][1]                 # false bc hasnt updated calculation
         rule4 = n_2 == self.trace[1][2]
             
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3 and rule4:
+            self.R[dest] = n_2                          # put here?  
+            self.pc += 1
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -59,12 +60,7 @@ class sentry:
         cmd = Addi(dest, src, n_1)
         self.program[self.pc] = cmd     # == trace[0]
         n_0 = self.R[src]               # == trace[1][0] 
-        n_2 = n_0 + n_1                 # == trace[1][1]
-        
-        # put here?
-        self.pc += 1
-        self.R[dest] = n_2   
-        #TODO: this is wrong? what is the point of fun_accept then. Is fun_accept supposed to update self.R? 
+        n_2 = n_0 + n_1                 # == trace[1][1] 
         
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
@@ -74,8 +70,8 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
-            R_ = self.R.copy()
-            # return self.fun_accept()
+            self.pc += 1
+            self.R[dest] = n_2  
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -88,9 +84,6 @@ class sentry:
         n_1 = self.R[temp]              # == trace[1][1]
         n_2 = n_0 - n_1                 # == trace[1][2]
         
-        self.pc += 1
-        self.R[dest] = n_2
-
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n_0 == self.trace[1][0]
@@ -99,6 +92,8 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
+            self.pc += 1
+            self.R[dest] = n_2
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -106,15 +101,14 @@ class sentry:
     def fun_jump(self, n):
         cmd = Jump(n)
         self.program[self.pc] = cmd     # == trace[0]
-        
-        self.pc = n
-        
+                
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
 
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1:
+            self.pc = n
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -125,9 +119,7 @@ class sentry:
         self.program[self.pc] = cmd     # == trace[0]
         n_1 = self.R[src]               # == trace[1][0]
                                         # n == trace[1][1] 
-            
-        self.pc = n
-            
+                        
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n_1 == self.trace[1][0]
@@ -137,6 +129,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3 and rule4:
+            self.pc = n
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -145,9 +138,7 @@ class sentry:
         cmd = Bgtz(src, n)
         self.program[self.pc] = cmd     # == trace[0]
         n_1 = self.R[src]               # == trace[1][0]
-        
-        self.pc += 1
-        
+                
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n_1 == self.trace[1][0]
@@ -156,6 +147,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
+            self.pc += 1
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -166,9 +158,6 @@ class sentry:
         n_1 = self.R[src]               # == trace[1][0]
         n_2 = self.S[n_1]               # == trace[1][1]
         
-        self.pc += 1
-        self.R[dest] = n_2
-        
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n_1 == self.trace[1][0]
@@ -177,6 +166,8 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
+            self.pc += 1
+            self.R[dest] = n_2
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -188,9 +179,6 @@ class sentry:
         n_1 = self.trace[1][1]
         n_2 = self.S[n_0]               # == hash(n_1)
         
-        self.pc += 1
-        self.R[dest] = n_1
-        
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n_0 == self.trace[1][0]
@@ -199,6 +187,8 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
+            self.pc += 1
+            self.R[dest] = n_1
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -210,8 +200,6 @@ class sentry:
         n_1 = self.R[src]               # == trace[1][1]
         n_2 = hash(n_1)
         
-        self.S[n_0] = n_2
-        self.pc += 1
         
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
@@ -221,6 +209,8 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2 and rule3:
+            self.S[n_0] = n_2
+            self.pc += 1
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -231,10 +221,6 @@ class sentry:
         n = self.getQ[0]                # == trace[1][0]
         getQ_ = self.getQ[1:]
         
-        self.R[dest] = n
-        self.pc += 1
-        self.getQ = getQ_
-        
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n == self.trace[1][0]
@@ -242,6 +228,9 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2:
+            self.R[dest] = n
+            self.pc += 1
+            self.getQ = getQ_
             return self.fun_accept()
         else:
             return self.fun_reject()
@@ -252,9 +241,6 @@ class sentry:
         self.program[self.pc] = cmd     # == trace[0]
         n = self.R[src]                 # == trace[1][0]
         
-        self.pc += 1
-        self.putQ = self.putQ + [n]
-        
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
         rule2 = n == self.trace[1][0]
@@ -262,14 +248,18 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1 and rule2:
+            self.pc += 1
+            self.putQ = self.putQ + [n]
             return self.fun_accept()
         else:
             return self.fun_reject()
         
+    # TODO: Should this go to reject? What should pc be?
     def fun_alert(self):
         cmd = alert()
         self.program[self.pc] = cmd       # == trace[0]
-        self.pc = 0
+        # self.pc = 0 infinite loop issue
+        self.pc = -1
         
         # rule1 = self.program[pc] == trace[0]
         rule1 = 1
@@ -282,7 +272,7 @@ class sentry:
         else:
             return self.fun_reject()
 
-        
+    # TODO: What to do with pc, so that it doesnt step off, doesnt infinite loop, stops
     def fun_returnn(self):
         cmd = returnn()
         self.program[self.pc] = cmd     # == trace[0]
@@ -293,6 +283,7 @@ class sentry:
         if self.trace == None or self.trace == []:
             return self.fun_empty()
         elif rule1:
+            self.pc = -1                             # wrong, but now it stops (no infinite loop)
             return self.fun_accept()
         else:
             return self.fun_reject()   
@@ -301,6 +292,7 @@ class sentry:
         
     def evil(self):
         self.R[5] = 500
+        self.R[2] = 10
     
     def print_program(self):
         print(f"sentry\tpc: {self.pc}\tR[]: {' '.join(map(str, self.R))}")

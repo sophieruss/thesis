@@ -194,7 +194,8 @@ class host:
         cmd = returnn()
         self.program[self.pc] = cmd
         if self.S == 1:
-            self.trace = [self.program[self.pc]] 
+            self.trace = [self.program[self.pc]]
+            self.pc = -1                             # wrong, but now it stops (no infinite loop)
         return send_trace(self.trace)
 
     def print_program(self):

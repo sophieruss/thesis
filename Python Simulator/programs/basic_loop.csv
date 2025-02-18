@@ -5,6 +5,7 @@ Add 0 0 1
 Sub 2 4 0
 Bgtz 2 3
 Addi 10 10 10
+returnn
 
 
 # Bgtz reg_being_compared, pc_jump_to 
