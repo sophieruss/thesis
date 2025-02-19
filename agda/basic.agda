@@ -10,8 +10,6 @@ open import Agda.Builtin.Sigma
 open import Agda.Builtin.List
 open import Data.List using (List; _∷_; _++_; length)
 
-
-
 data Instruction : Set where
   NoOp  : Instruction
   Add   : ℕ → ℕ → Instruction
@@ -20,12 +18,6 @@ record Program : Set where
   constructor program
   field 
     instructions : List Instruction
-    -- make this into vector of instructions
-
-
-exampleProgram : Program
--- exampleProgram = _ { instructions = [ ] }
-exampleProgram = program  (NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [])
 
 record State : Set where
   constructor [_]
@@ -39,11 +31,26 @@ data _,_—→_ : Program → State → State → Set where
          p , s —→ [ suc (s .State.pc) ]
 
 
+infix  3 _∎
+infix 4 _,_—→*_
+data _,_—→*_ : Program → State → State → Set where
+    _∎ : ∀ (p : Program) → (s : State) 
+      → p , s —→* s
+    step—→ : ∀ (p : Program) (s s₁ s₂ : State)
+      → p , s₁ —→* s₂ 
+      → p , s —→ s₁ 
+      → p , s —→* s₂
 
+-- TODO: how to make this pattern
+pattern _,_—→⟨_⟩_ p s s₁ p,s—→s₁ p,s₁—→*s₂ = step—→ p s s₁ p,s₁—→*s₂ p,s—→s₁
+-- pattern _—→⟨_⟩_ t t—→t₁ t₁—→*t₂ = step—→ t t₁—→*t₂ t—→t₁
+
+
+exampleProgram : Program
+exampleProgram = program  (NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [])
 
 _ : ( exampleProgram , [ 2 ] —→ [ 3 ] ) 
 _ = step-pc exampleProgram [ 2 ] ((s≤s (s≤s (s≤s z≤n))))
--- _ = step-pc [ 5 ] [ 2 ] (s≤s (s≤s (s≤s z≤n)))
 -- _ = step-pc [ 5 ] [ 2 ] (s<s (s<s z<s))
 
 
@@ -51,21 +58,8 @@ _ = step-pc exampleProgram [ 2 ] ((s≤s (s≤s (s≤s z≤n))))
   -- ^^y or c ^^.
   -- transitive closure - copy and paste step relation, give name take multi steps to here
   -- goes from 0 to 3, takes lots of steps, 0 to 1, 1 to 2 ...
-
   -- only takes step if < |prog| < 2, so doesnt step off end
-
   -- vector of instructions
-
   -- instructions bessides no-op
 
 
-
-
--- data _—→*_ : Term → Term → Set where
---     _∎ : ∀ (t : Term) → t —→* t
---     step—→ : ∀ (t : Term) {t₁ t₂ : Term}
---         → t₁ —→* t₂
---         → t  —→  t₁
---         → t  —→* t₂
-
--- pattern _—→⟨_⟩_ t t—→t₁ t₁—→*t₂ = step—→ t t₁—→*t₂ t—→t₁
