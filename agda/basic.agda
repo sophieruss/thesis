@@ -47,7 +47,7 @@ pattern _,_—→⟨_⟩_ p s s₁ p,s—→s₁ p,s₁—→*s₂ = step—→ 
 
 
 exampleProgram : Program
-exampleProgram = program  ( NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [])
+exampleProgram = program  ( Add 4 3 ∷ NoOp ∷ NoOp ∷ NoOp ∷ [])
 
 _ : ( exampleProgram , [ 2 ] —→ [ 3 ] ) 
 _ = step-pc exampleProgram [ 2 ] ((s≤s (s≤s (s≤s z≤n))))
