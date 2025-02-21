@@ -7,8 +7,6 @@ import Relation.Binary.PropositionalEquality
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Equality
 open import Agda.Builtin.Sigma
--- open import Agda.Builtin.List
--- open import Data.List using (List; _∷_; _++_; length)
 open import Data.Vec using (Vec; _∷_; [])
 open import Agda.Primitive
 open import Data.Sum
