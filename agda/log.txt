@@ -1,17 +1,19 @@
 
 week seven
--- test multi step
--- ask abt vector vs list... will i have to prove more (that an item is at that index) if i use a list instead of vector
--- add registers (vector 32)
--- put in add instruction (with registers)
--- logic should ensure all other registers are the same
--- update noop, ensure regs are all same
+  [x] test multi step
+  [x] ask abt vector vs list... will i have to prove more (that an item is at that index) if i use a list instead of vector
+    yes, a list would require a proof that len(list) < n, while a vector automatically has that proof
+  [] add registers (vector 32)
+  [] put in add instruction (with registers)
+  [] logic should ensure all other registers are the same
+  [] update noop, ensure regs are all same
 
 week six
-  -- ^^y or c ^^.
-  -- transitive closure - copy and paste step relation, give name take multi steps to here
-  -- goes from 0 to 3, takes lots of steps, 0 to 1, 1 to 2 ...
-  -- only takes step if < |prog| < 2, so doesnt step off end
+  [x] ^^y or c ^^.
+  [x] proofs for constructors, inductive
+  [x] transitive closure - copy and paste step relation, give name take multi steps to here
+  [x] goes from 0 to 3, takes lots of steps, 0 to 1, 1 to 2 ...
+  [x] only takes step if < |prog| < 2, so doesnt step off end
     -- ? depends on the step though, for now, yes.
-  -- vector of instructions
-  -- instructions bessides no-op
+  [+] vector of instructions
+  [+] instructions bessides no-op
