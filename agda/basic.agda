@@ -11,6 +11,8 @@ open import Agda.Builtin.Sigma
 -- open import Data.List using (List; _∷_; _++_; length)
 open import Data.Vec using (Vec; _∷_; [])
 open import Agda.Primitive
+open import Data.Sum
+
 
 
 data Instruction : Set where
@@ -33,29 +35,39 @@ infix 4 _,_—→_
 data _,_—→_ : ∀ {n} → Program n → State → State → Set where
   step-pc : ∀ {n} → (p : Program n) → (s : State) → 
          (s .State.pc < n ) → 
-         p , s —→ 
-         [ suc (s .State.pc) ]
+         p , s —→ [ suc (s .State.pc) ]
         --  no op and add
 
 
 -- infix  3 _∎
 infix 4 _,_—→*_
 data _,_—→*_ : ∀ {n} → Program n → State → State → Set where
-    _∎ : ∀ {n} → ∀ (p : Program n) → (s : State) 
+    done : ∀ {n} → ∀ (p : Program n) → (s : State) 
       → p , s —→* s
     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State)
       → p , s₁ —→* s₂ 
       → p , s —→ s₁ 
       → p , s —→* s₂
 
--- TODO: how to make this pattern 
-pattern _,_—→⟨_⟩_ p s s₁ p,s—→s₁ p,s₁—→*s₂ = step—→ p s s₁ p,s₁—→*s₂ p,s—→s₁
--- pattern _—→⟨_⟩_ t t—→t₁ t₁—→*t₂ = step—→ t t₁—→*t₂ t—→t₁
+
+test-prog : Program 4
+test-prog = program ( NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [] )
+
+test-step : test-prog , [ 2 ] —→ [ 3 ] 
+test-step = step-pc test-prog [ 2 ] ((s≤s (s≤s (s≤s z≤n))))
+-- test-step = step-pc [ 5 ] [ 2 ] (s<s (s<s z<s))
 
 
-exampleProgram : Program 4
-exampleProgram = program ( Add 4 3 ∷ NoOp ∷ NoOp ∷ NoOp ∷ [] )
+test-multi-step : test-prog , [ 1 ] —→* [ 3 ]
+test-multi-step = step—→ test-prog [ 1 ] [ 2 ] [ 3 ] 2—→*3 1—→2
+  where
+  1—→2 : test-prog , [ 1 ] —→ [ 2 ] 
+  1—→2 = step-pc test-prog [ 1 ] ((s≤s (s≤s z≤n)))
 
-_ : ( exampleProgram , [ 2 ] —→ [ 3 ] ) 
-_ = step-pc exampleProgram [ 2 ] ((s≤s (s≤s (s≤s z≤n))))
--- _ = step-pc [ 5 ] [ 2 ] (s<s (s<s z<s))
+  2—→*3 : test-prog , [ 2 ] —→* [ 3 ]
+  2—→*3  = step—→ test-prog [ 2 ] [ 3 ] [ 3 ] (done test-prog [ 3 ]) 2—→3
+    where
+    2—→3 : test-prog , [ 2 ] —→ [ 3 ] 
+    2—→3 = step-pc test-prog [ 2 ] ((s≤s (s≤s (s≤s z≤n)))) 
+
+
