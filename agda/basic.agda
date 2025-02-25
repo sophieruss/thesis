@@ -1,15 +1,13 @@
 module basic where
 
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
--- proofs for constructors, inductive
-import Relation.Binary.PropositionalEquality
-    using (_≡_; refl; cong; sym; trans)
+import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Equality
 open import Agda.Builtin.Sigma
-open import Data.Vec using (Vec; _∷_; [])
+open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup)
 open import Agda.Primitive
-open import Data.Sum
+open import Data.Fin using (Fin; zero; suc; #_)
 
 
 
@@ -23,18 +21,29 @@ record Program (n : ℕ) : Set where
     instructions : Vec Instruction n
 
 record State : Set where
-  constructor [_]
+  constructor [_,_]
   field
     pc : ℕ
+    registers : Vec ℕ 32
     -- instruction pointer (now), register vector 32, noop regs shuold be same
     -- step relation for add - all other regs are unchanged except destinati0on
 
+
 infix 4 _,_—→_
 data _,_—→_ : ∀ {n} → Program n → State → State → Set where
-  step-pc : ∀ {n} → (p : Program n) → (s : State) → 
-         (s .State.pc < n ) → 
-         p , s —→ [ suc (s .State.pc) ]
-        --  no op and add
+
+  -- ensure instruction is NoOp, increment pc, do i need to explicitly check s.reg ≡ s.reg
+  step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
+        (s .State.pc < n ) → 
+        ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ NoOp) →
+        p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
+  
+  
+  step-Add :  ∀ {n} → (p : Program n) → (s : State) →
+        (s .State.pc < n ) → 
+        ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ (Add _ _)) →
+        p , s —→ [ (suc (s .State.pc)) , {!   !} ]
+        
 
 
 -- infix  3 _∎
@@ -51,21 +60,31 @@ data _,_—→*_ : ∀ {n} → Program n → State → State → Set where
 test-prog : Program 4
 test-prog = program ( NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [] )
 
-test-step : test-prog , [ 2 ] —→ [ 3 ] 
-test-step = step-pc test-prog [ 2 ] ((s≤s (s≤s (s≤s z≤n))))
--- test-step = step-pc [ 5 ] [ 2 ] (s<s (s<s z<s))
+
+r32 = replicate 32 0
+r32-evil = 1 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+
+state0 = [ 0 , r32 ]
+state1 = [ 1 , r32 ]
+state2 = [ 2 , r32 ]
+state3 = [ 3 , r32 ]
+
+test-step : test-prog , state2 —→ state3  
+test-step = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
+-- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
 
 
-test-multi-step : test-prog , [ 1 ] —→* [ 3 ]
-test-multi-step = step—→ test-prog [ 1 ] [ 2 ] [ 3 ] 2—→*3 1—→2
+test-multi-step : test-prog , state1 —→* state3
+test-multi-step = step—→ test-prog state1 state2 state3 2—→*3 1—→2
   where
-  1—→2 : test-prog , [ 1 ] —→ [ 2 ] 
-  1—→2 = step-pc test-prog [ 1 ] ((s≤s (s≤s z≤n)))
+  1—→2 : test-prog , state1 —→ state2
+  1—→2 = step-NoOp test-prog state1 ((s≤s (s≤s z≤n))) refl
 
-  2—→*3 : test-prog , [ 2 ] —→* [ 3 ]
-  2—→*3  = step—→ test-prog [ 2 ] [ 3 ] [ 3 ] (done test-prog [ 3 ]) 2—→3
+  2—→*3 : test-prog , state2 —→* state3
+  2—→*3  = step—→ test-prog state2 state3 state3 (done test-prog state3) 2—→3
     where
-    2—→3 : test-prog , [ 2 ] —→ [ 3 ] 
-    2—→3 = step-pc test-prog [ 2 ] ((s≤s (s≤s (s≤s z≤n)))) 
+    2—→3 : test-prog , state2 —→ state3
+    2—→3 = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
 
 
+  
