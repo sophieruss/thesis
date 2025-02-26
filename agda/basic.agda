@@ -10,7 +10,6 @@ open import Agda.Primitive
 open import Data.Fin using (Fin; zero; suc; #_)
 
 
-
 data Instruction : Set where
   NoOp  : Instruction
   Add   : Fin 32 → Fin 32 → Fin 32 → Instruction
@@ -74,10 +73,10 @@ state1 = [ 1 , r32 ]
 state2 = [ 2 , r32 ]
 state3 = [ 3 , r32 ]
 
-test-step : test-prog , state2 —→ state3  
-test-step = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
--- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
 
+test-step-noOp : test-prog , state2 —→ state3  
+test-step-noOp = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
+-- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
 
 test-multi-step : test-prog , state1 —→* state3
 test-multi-step = step—→ test-prog state1 state2 state3 2—→*3 1—→2
@@ -93,4 +92,21 @@ test-multi-step = step—→ test-prog state1 state2 state3 2—→*3 1—→2
 
 
 
+-- add test-step
 
+test-prog-add : Program 1
+test-prog-add = program ( Add (# 0) (# 1) (# 2) ∷ [] )
+
+r32-add-start = 1 ∷ 2 ∷ 3 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+r32-add-end = 5 ∷ 2 ∷ 3 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+
+statea = [ 0 , r32-add-start ]
+stateb = [ 1 , r32-add-end ]
+
+
+test-step-add : test-prog-add , statea —→ stateb  
+test-step-add =  step-Add test-prog-add statea (s≤s z≤n) proof where
+  proof = lookup {!   !} {!   !}
+  --  (lookup (test-prog-add .Program.instructions) (# (statea .State.pc)))
+
+ 

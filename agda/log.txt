@@ -1,12 +1,17 @@
+week eight
+? check using something stronger than single cases
+? check that registers persist - in proof or in step
+? ask why its requiring proof for  vector indexing
+
 
 week seven
   [x] test multi step
   [x] ask abt vector vs list... will i have to prove more (that an item is at that index) if i use a list instead of vector
     yes, a list would require a proof that len(list) < n, while a vector automatically has that proof
-  [] add registers (vector 32)
+  [x] add registers (vector 32)
   [] put in add instruction (with registers)
   [] logic should ensure all other registers are the same
-  [] update noop, ensure regs are all same
+  [x] update noop, ensure regs are all same
 
 week six
   [x] ^^y or c ^^.
