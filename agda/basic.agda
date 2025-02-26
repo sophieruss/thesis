@@ -5,7 +5,7 @@ import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; tran
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Equality
 open import Agda.Builtin.Sigma
-open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup)
+open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Agda.Primitive
 open import Data.Fin using (Fin; zero; suc; #_)
 
@@ -13,7 +13,7 @@ open import Data.Fin using (Fin; zero; suc; #_)
 
 data Instruction : Set where
   NoOp  : Instruction
-  Add   : ℕ → ℕ → Instruction
+  Add   : Fin 32 → Fin 32 → Fin 32 → Instruction
 
 record Program (n : ℕ) : Set where
   constructor program
@@ -29,20 +29,25 @@ record State : Set where
     -- step relation for add - all other regs are unchanged except destinati0on
 
 
+addHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → Fin 32 → Vec ℕ 32
+addHelper vec dest r1 r2 = 
+  let newelem = (lookup vec ( r1 )) + (lookup vec ( r2))
+  in updateAt vec ( dest ) (λ x → newelem)
+
 infix 4 _,_—→_
 data _,_—→_ : ∀ {n} → Program n → State → State → Set where
-
-  -- ensure instruction is NoOp, increment pc, do i need to explicitly check s.reg ≡ s.reg
+  -- ensure instruction is NoOp, increment pc
   step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
         (s .State.pc < n ) → 
         ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ NoOp) →
         p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
   
-  
-  step-Add :  ∀ {n} → (p : Program n) → (s : State) →
+  step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
         (s .State.pc < n ) → 
-        ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ (Add _ _)) →
-        p , s —→ [ (suc (s .State.pc)) , {!   !} ]
+        ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ (Add dest r1 r2)) →
+        p , s —→ [ (suc (s .State.pc)) , addHelper (s .State.registers) (dest) (r1) (r2) ]
+
+        
         
 
 
@@ -87,4 +92,5 @@ test-multi-step = step—→ test-prog state1 state2 state3 2—→*3 1—→2
     2—→3 = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
 
 
-  
+
+
