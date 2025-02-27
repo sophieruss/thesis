@@ -7,7 +7,7 @@ open import Agda.Builtin.Equality
 open import Agda.Builtin.Sigma
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Agda.Primitive
-open import Data.Fin using (Fin; zero; suc; #_)
+open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)
 
 
 data Instruction : Set where
@@ -24,10 +24,8 @@ record State : Set where
   field
     pc : ℕ
     registers : Vec ℕ 32
-    -- instruction pointer (now), register vector 32, noop regs shuold be same
-    -- step relation for add - all other regs are unchanged except destinati0on
-
-
+   
+   
 addHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → Fin 32 → Vec ℕ 32
 addHelper vec dest r1 r2 = 
   let newelem = (lookup vec ( r1 )) + (lookup vec ( r2))
@@ -35,19 +33,17 @@ addHelper vec dest r1 r2 =
 
 infix 4 _,_—→_
 data _,_—→_ : ∀ {n} → Program n → State → State → Set where
-  -- ensure instruction is NoOp, increment pc
   step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
-        (s .State.pc < n ) → 
-        ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ NoOp) →
+        (prf : s .State.pc < n) → 
+        ((lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
         p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
   
+  -- step-Add : ∀ {n pc regs} {inst : Vec Instruction n} {dest r1 r2 : Fin 32}
+      -- → ((program inst) , ([ pc , regs ]) —→ ([ (suc pc) , addHelper regs dest r1 r2 ]))
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
-        (s .State.pc < n ) → 
-        ((lookup (p .Program.instructions) (# (s .State.pc))) ≡ (Add dest r1 r2)) →
-        p , s —→ [ (suc (s .State.pc)) , addHelper (s .State.registers) (dest) (r1) (r2) ]
-
-        
-        
+      (prf : s .State.pc < n ) → 
+      ((lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
+      p , s —→ [ (suc (s .State.pc)) , addHelper (s .State.registers) dest r1 r2 ]
 
 
 -- infix  3 _∎
@@ -64,9 +60,8 @@ data _,_—→*_ : ∀ {n} → Program n → State → State → Set where
 test-prog : Program 4
 test-prog = program ( NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [] )
 
-
 r32 = replicate 32 0
-r32-evil = 1 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+r32-evil = updateAt r32 (# 0) (λ x → 1)
 
 state0 = [ 0 , r32 ]
 state1 = [ 1 , r32 ]
@@ -91,8 +86,7 @@ test-multi-step = step—→ test-prog state1 state2 state3 2—→*3 1—→2
     2—→3 = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
 
 
-
--- add test-step
+-- 'ADD' test
 
 test-prog-add : Program 1
 test-prog-add = program ( Add (# 0) (# 1) (# 2) ∷ [] )
@@ -104,9 +98,5 @@ statea = [ 0 , r32-add-start ]
 stateb = [ 1 , r32-add-end ]
 
 
-test-step-add : test-prog-add , statea —→ stateb  
-test-step-add =  step-Add test-prog-add statea (s≤s z≤n) proof where
-  proof = lookup {!   !} {!   !}
-  --  (lookup (test-prog-add .Program.instructions) (# (statea .State.pc)))
-
- 
+test-step-add : test-prog-add , statea —→ stateb 
+test-step-add = step-Add test-prog-add statea (s≤s z≤n) refl
