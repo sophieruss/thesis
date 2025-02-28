@@ -75,4 +75,48 @@ test-multi-step-add = step—→ test-prog-add statea stateb stated  b—→*d a
 
     c—→d : test-prog-add , statec —→ stated
     c—→d =  step-Add test-prog-add statec (s≤s (s≤s (s≤s z≤n))) refl 
-  
+   
+
+-- 'SUB' test
+
+test-prog-sub : Program 1
+test-prog-sub = program ( Sub (# 0) (# 1) (# 2) ∷ [] )
+
+r32-sub-start = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+r32-sub-end = 3 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+
+stateI = [ 0 , r32-sub-start ]
+stateII = [ 1 , r32-sub-end ]
+
+test-step-sub : test-prog-sub , stateI —→ stateII
+test-step-sub =  step-Sub test-prog-sub stateI (s≤s z≤n) refl
+
+
+-- 'Addi' test
+
+test-prog-addi : Program 1
+test-prog-addi = program ( Addi (# 0) (# 1) 500 ∷ [] )
+
+r32-addi-start = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+r32-addi-end = 510 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+
+state-one = [ 0 , r32-addi-start ]
+state-two = [ 1 , r32-addi-end ]
+
+test-step-addi : test-prog-addi , state-one —→ state-two
+test-step-addi =  step-Addi test-prog-addi state-one (s≤s z≤n) refl
+
+
+
+-- 'Jump' test
+
+test-prog-jmp : Program 4
+test-prog-jmp = program ( Jump 3 ∷ NoOp ∷ NoOp ∷ Add (# 0) (# 1) (# 2) ∷ [] )
+
+r32-jmp = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
+
+state-uno = [ 0 , r32-jmp ]
+state-dos = [ 3 , r32-jmp ]
+
+test-step-jmp : test-prog-jmp , state-uno —→ state-dos
+test-step-jmp = step-Jump test-prog-jmp state-uno  (s≤s z≤n) ((s≤s (s≤s (s≤s (s≤s z≤n))))) refl
