@@ -1,7 +1,15 @@
 week eight
 ? check using something stronger than single cases
 ? check that registers persist - in proof or in step
-? ask why its requiring proof for  vector indexing
+  -- when i call this fn, i can prove that output is same, etc.
+  -- data.vec.properties would have the proof
+[x] ask why its requiring proof for vector indexing - because it needs the proof from line above
+? I have a machine defined. What is "proving"
+  -- ok i think i am proving that the two systems are the same after 0 or more steps, I am not sure if I need the for all 
+  -- program [add :: etc], states can take a valid step?? 
+
+-- Brian does not like that I am taking in Prog, State and having to decompose it in the step.
+-- ALso, issue of step-add checking the program is equal to every Add (what it may be doing), or any Add (want)
 
 
 week seven
@@ -9,8 +17,8 @@ week seven
   [x] ask abt vector vs list... will i have to prove more (that an item is at that index) if i use a list instead of vector
     yes, a list would require a proof that len(list) < n, while a vector automatically has that proof
   [x] add registers (vector 32)
-  [] put in add instruction (with registers)
-  [] logic should ensure all other registers are the same
+  [x] put in add instruction (with registers)
+  [] logic should ensure all other registers are the same  -- I likely get this for free because of updateAt - triple check with Brian
   [x] update noop, ensure regs are all same
 
 week six
