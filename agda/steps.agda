@@ -36,7 +36,7 @@ data _,_—→_ : ∀ {n} → Program n → State → State → Set where
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
-    let sum = lookup (s .State.registers) r1 + lookup (s .State.registers) r1
+    let sum = lookup (s .State.registers) r1 + lookup (s .State.registers) r2
     in let r = updateAt (s .State.registers) ( dest ) (λ x → sum)
     in p , s —→ [ (suc (s .State.pc)) , r ]
   
