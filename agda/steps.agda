@@ -5,10 +5,6 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym;
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)
 open import Data.List.Base using (List)
--- open import Agda.Builtin.Bool
--- open import Agda.Builtin.Equality
--- open import Agda.Builtin.Sigma
--- open import Agda.Primitive
 
 data Instruction : Set where
   NoOp  : Instruction
@@ -29,22 +25,6 @@ record State : Set where
     pc : ℕ
     registers : Vec ℕ 32
    
-   
-addHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → Fin 32 → Vec ℕ 32
-addHelper vec dest r1 r2 = 
-  let newelem = (lookup vec ( r1 )) + (lookup vec ( r2))
-  in updateAt vec ( dest ) (λ x → newelem)
-
-subHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → Fin 32 → Vec ℕ 32
-subHelper vec dest r1 r2 = 
-  let newelem = (lookup vec ( r1 )) ∸ (lookup vec ( r2))
-  in updateAt vec ( dest ) (λ x → newelem)
-
-addiHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → ℕ → Vec ℕ 32
-addiHelper vec dest r1 temp = 
-  let newelem = (lookup vec ( r1 )) + temp
-  in updateAt vec ( dest ) (λ x → newelem)
-
 
 infix 4 _,_—→_
 data _,_—→_ : ∀ {n} → Program n → State → State → Set where
@@ -52,23 +32,29 @@ data _,_—→_ : ∀ {n} → Program n → State → State → Set where
         (prf : s .State.pc < n) → 
         (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
         p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
-  
+
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
-      (prf : s .State.pc < n ) → 
-      (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
-      p , s —→ [ (suc (s .State.pc)) , addHelper (s .State.registers) dest r1 r2 ]
+    (prf : s .State.pc < n ) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
+    let sum = lookup (s .State.registers) r1 + lookup (s .State.registers) r1
+    in let r = updateAt (s .State.registers) ( dest ) (λ x → sum)
+    in p , s —→ [ (suc (s .State.pc)) , r ]
+  
 
   step-Sub :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
-    p , s —→ [ (suc (s .State.pc)) , subHelper (s .State.registers) dest r1 r2 ]
+    let sum = lookup (s .State.registers) r1 ∸ lookup (s .State.registers) r2
+    in let r = updateAt (s .State.registers) ( dest ) (λ x → sum)
+    in p , s —→ [ (suc (s .State.pc)) , r ]
 
 
   step-Addi :  ∀ {n} → {dest r1 : Fin 32} → {temp : ℕ}  → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Addi dest r1 temp)) →
-    p , s —→ [ (suc (s .State.pc)) , addiHelper (s .State.registers) dest r1 temp ]
-
+    let sum = lookup (s .State.registers) r1 + temp
+    in let r = updateAt (s .State.registers) ( dest ) (λ x → sum)
+    in p , s —→ [ (suc (s .State.pc)) , r ]
 
   step-Jump : ∀ {n jmp-pc} → (p : Program n) → (s : State) →                         
         (prf : s .State.pc < n) → 
