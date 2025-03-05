@@ -45,60 +45,49 @@ addiHelper vec dest r1 temp =
   let newelem = (lookup vec ( r1 )) + temp
   in updateAt vec ( dest ) (λ x → newelem)
 
-bgtzHelper : ℕ → ℕ → ℕ → ℕ
-bgtzHelper src_val n pc with src_val
-... | 0  = suc pc
-... | _ = n 
-
 
 infix 4 _,_—→_
 data _,_—→_ : ∀ {n} → Program n → State → State → Set where
   step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
         (prf : s .State.pc < n) → 
-        ((lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
+        (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
         p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
   
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
       (prf : s .State.pc < n ) → 
-      ((lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
+      (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
       p , s —→ [ (suc (s .State.pc)) , addHelper (s .State.registers) dest r1 r2 ]
 
   step-Sub :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
-    ((lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
     p , s —→ [ (suc (s .State.pc)) , subHelper (s .State.registers) dest r1 r2 ]
 
 
   step-Addi :  ∀ {n} → {dest r1 : Fin 32} → {temp : ℕ}  → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
-    ((lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Addi dest r1 temp)) →
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Addi dest r1 temp)) →
     p , s —→ [ (suc (s .State.pc)) , addiHelper (s .State.registers) dest r1 temp ]
 
 
   step-Jump : ∀ {n jmp-pc} → (p : Program n) → (s : State) →                         
         (prf : s .State.pc < n) → 
         (prf2 : jmp-pc < n) → 
-        ((lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Jump jmp-pc)) →
+        (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Jump jmp-pc)) →
         p , s —→ [ jmp-pc , (s .State.registers) ]
-
-  -- step-Bgtz : ∀ {n bgtz-pc} → {src : Fin 32} →  (p : Program n) → (s : State) →                         
-  --       (prf : s .State.pc < n) → 
-  --       (prf2 : bgtz-pc < n) → 
-  --       ((lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
-  --       p , s —→ [ bgtzHelper (lookup (s .State.registers) src) bgtz-pc  (s .State.pc) , (s .State.registers) ]
   
   step-Bgtz-l : ∀ {n bgtz-pc} → {src : Fin 32} →  (p : Program n) → (s : State) →                         
       (prf : s .State.pc < n) → 
       (prf2 : bgtz-pc < n) → 
       (prf3 : (lookup (s .State.registers) src) ≡ 0 ) → 
-      ((lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
+      (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
       p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
 
   step-Bgtz-g : ∀ {n bgtz-pc} → {src : Fin 32} →  (p : Program n) → (s : State) →                         
       (prf : s .State.pc < n) → 
       (prf2 : bgtz-pc < n) → 
       (prf3 : (lookup (s .State.registers) src) > 0 ) → 
-      ((lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
+      (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
       p , s —→ [ bgtz-pc , (s .State.registers) ]
 
 
