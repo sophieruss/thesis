@@ -1,20 +1,45 @@
-week eight
-? check using something stronger than single cases
-? check that registers persist - in proof or in step
-  -- when i call this fn, i can prove that output is same, etc.
-  -- data.vec.properties would have the proof
-  -- if i made a proof, itd be a call to their proof of updateAt.properties and that theirs works 
+week nine
+[] prove determinism
+[] put in sentry
+[] trace values
 
-[x] ask why its requiring proof for vector indexing - because it needs the proof from line above
-? I have a machine defined. What is "proving"
-  -- ok i think i am proving that the two systems are the same after 0 or more steps, I am not sure if I need the for all 
-  -- program [add :: etc], states can take a valid step?? 
+[x] bgtz - can there be negatives (are we using integers or naturals) ? store assumes it must be nats? 
+  yes, assume nats. sub j goes to zero then
+[-] lists for memory? Can I use a vector otherwise need to ask how (skip for now)
+[x] on paper, what would a universal/quanitifier look like for a proof that all NoOp (or add) steps are possible?
+  determinism!!!
+  for all progs (tuple state), at most 1 step
+  prog state 1 and prog state 2 go to state 3, 1 and 2 must be the same lots of contradictions and noncontras (same state)
+  when it fails - suppose add doesnt check registers, than it could go to a different step -> non-determinism
+    stuck in a proof or what ur proving isnt possible
+    ie take out pc+1, nda bc pc could be any
+  no differentiation between a 'good' stuck state (i forget) and a bad 'stuck' state (step not possible)
+
+week eight
+[x] vectors
+[x] add test cases
+[x] addi sub jmp branch
+
+other
+  - check using something stronger than single cases
+  - check that registers persist - in proof or *in step*
+    -- when i call this fn, i can prove that output is same, etc.
+    -- data.vec.properties would have the proof
+    -- if i made a proof, itd be a call to their proof of updateAt.properties and that theirs works 
+
+  - ask why its requiring proof for vector indexing - because it needs the proof from line above
+  - I have a machine defined. What is "proving"
+    -- ok i think i am proving that the two systems are the same after 0 or more steps, I am not sure if I need the for all 
+    -- program [add :: etc], states can take a valid step?? 
 
   -- Brian does not like that I am taking in Prog, State and having to decompose it in the step.
     -- step-Add : ∀ {n pc regs} {inst : Vec Instruction n} {dest r1 r2 : Fin 32}
         -- → ((program inst) , ([ pc , regs ]) —→ ([ (suc pc) , addHelper regs dest r1 r2 ]))
   -- ALso, issue of step-add checking the program is equal to every Add (what it may be doing), or any Add (want)
 
+  -- im proving each system AND that they are in sync
+  -- queues are of length 1 probably (vector is ok)
+  -- trace value is also fixed (so vector is ok)
 
 week seven
   [x] test multi step
@@ -24,6 +49,7 @@ week seven
   [x] put in add instruction (with registers)
   [+] logic should ensure all other registers are the same  -- I likely get this for free because of updateAt - triple check with Brian
   [x] update noop, ensure regs are all same
+  [] terms: machine checked proofs, andrew but in agda; proof by simulation
 
 week six
   [x] ^^y or c ^^.
