@@ -35,17 +35,6 @@ record Trace : Set where
     instr : Instruction
     args :  Vec ℕ 3
 
-   
-addHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → Fin 32 → Vec ℕ 32
-addHelper vec dest r1 r2 = 
-  let newelem = (lookup vec ( r1 )) + (lookup vec ( r2))
-  in updateAt vec ( dest ) (λ x → newelem)
-
-subHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → Fin 32 → Vec ℕ 32
-subHelper vec dest r1 r2 = 
-  let newelem = (lookup vec ( r1 )) ∸ (lookup vec ( r2))
-  in updateAt vec ( dest ) (λ x → newelem)
-
 addiHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → ℕ → Vec ℕ 32
 addiHelper vec dest r1 temp = 
   let newelem = (lookup vec ( r1 )) + temp
@@ -55,37 +44,47 @@ addiHelper vec dest r1 temp =
 infix 4 _,_—→_,_
 data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
   step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
-        (prf : s .State.pc < n) → 
-        (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
-        p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] , ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
+    p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] , ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
   
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
-      (prf : s .State.pc < n ) → 
-      (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
-      p , s —→ [ (suc (s .State.pc)) , addHelper (s .State.registers) dest r1 r2 ] , 
-      ⟨ Add dest r1 r2 , 
-      lookup (s .State.registers) r1 ∷ 
-      lookup (s .State.registers) r2 ∷ 
-      lookup (s .State.registers) dest ∷ [] ⟩
+    (prf : s .State.pc < n ) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
+      
+    let    r1_val = lookup (s .State.registers) r1
+    in let r2_val = lookup (s .State.registers) r2
+    in let    sum = r1_val + r2_val
+    in let      r = updateAt (s .State.registers) dest (λ x → sum)
+    in let      t = ⟨ Add dest r1 r2 , r1_val ∷ r2_val ∷ sum ∷ [] ⟩
+    
+    in p , s —→ [ (suc (s .State.pc)) , r ] , t
+    
+
 
   step-Sub :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
-    p , s —→ [ (suc (s .State.pc)) , subHelper (s .State.registers) dest r1 r2 ] , 
-    ⟨ Sub dest r1 r2 , 
-      lookup (s .State.registers) r1 ∷ 
-      lookup (s .State.registers) r2 ∷ 
-      lookup (s .State.registers) dest ∷ [] ⟩
+
+    let    r1_val = lookup (s .State.registers) r1
+    in let r2_val = lookup (s .State.registers) r2
+    in let    dif = r1_val ∸ r2_val
+    in let      r = updateAt (s .State.registers) dest (λ x → dif)
+    in let      t = ⟨ Sub dest r1 r2 , r1_val ∷ r2_val ∷ dif ∷ [] ⟩
+    
+    in p , s —→ [ (suc (s .State.pc)) , r ] , t
       
 
   step-Addi :  ∀ {n} → {dest r1 : Fin 32} → {temp : ℕ}  → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Addi dest r1 temp)) →
-    p , s —→ [ (suc (s .State.pc)) , addiHelper (s .State.registers) dest r1 temp ] , 
-    ⟨ Addi dest r1 temp , 
-      lookup (s .State.registers) r1 ∷  
-      lookup (s .State.registers) dest ∷ 
-      0 ∷ [] ⟩
+
+    let    r1_val = lookup (s .State.registers) r1
+    in let    sum = r1_val + temp
+    in let      r = updateAt (s .State.registers) dest (λ x → sum)
+    in let      t = ⟨ Addi dest r1 temp , r1_val ∷ sum ∷ 0 ∷ [] ⟩
+    
+    in p , s —→ [ (suc (s .State.pc)) , r ] , t
 
   step-Jump : ∀ {n jmp-pc} → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
@@ -93,9 +92,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Jump jmp-pc)) →
     p , s —→ [ jmp-pc , (s .State.registers) ] ,
     ⟨ Jump jmp-pc , 
-      jmp-pc ∷  
-      0 ∷ 
-      0 ∷ [] ⟩
+      jmp-pc ∷  0 ∷ 0 ∷ [] ⟩
   
   step-Bgtz-l : ∀ {n bgtz-pc} → {src : Fin 32} →  (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
@@ -121,7 +118,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
 
 infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
-    done : ∀ {n} → ∀ (p : Program n) → (s : State) → (t : Trace) 
+    done : ∀ {n} → ∀ (p : Program n) → (s : State) (t : Trace) 
       → p , s —→* s , t
     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t : Trace)
       → p , s₁ —→* s₂ , t

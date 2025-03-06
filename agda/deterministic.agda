@@ -17,7 +17,7 @@ det : ∀ {n} {p : Program n} {s s₁ s₂ : State}
 
 
 det (step-NoOp _ _ prf cmd-prf) (step-NoOp _ _ prf₁ cmd-prf₁) = refl
-det (step-NoOp _ _ prf cmd-prf) (step-Add _ _ prf₁ cmd-prf₁) = {! cmd-prf₁ !} 
+det (step-NoOp _ _ prf cmd-prf) (step-Add _ _ prf₁ cmd-prf₁) = {!  !} 
 
 det (step-NoOp _ _ prf cmd-prf) (step-Sub _ _ prf₁ cmd-prf₁) = {!   !}
 det (step-NoOp _ _ prf cmd-prf) (step-Addi _ _ prf₁ cmd-prf₁) = {!   !}
