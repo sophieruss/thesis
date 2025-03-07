@@ -30,13 +30,13 @@ test-step-noOp = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
 -- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
 
 test-multi-step-noOp : test-prog , state1 —→* state3 , t-NoOp
-test-multi-step-noOp = step—→ test-prog state1 state2 state3  t-NoOp 2—→*3 1—→2
+test-multi-step-noOp = step—→ test-prog state1 state2 state3 t-NoOp t-NoOp t-NoOp 2—→*3 1—→2
   where
   1—→2 : test-prog , state1 —→ state2 , t-NoOp
   1—→2 = step-NoOp test-prog state1 (s≤s (s≤s z≤n)) refl
 
   2—→*3 : test-prog , state2 —→* state3 , t-NoOp
-  2—→*3  = step—→ test-prog state2 state3 state3 t-NoOp 3—→*3 2—→3
+  2—→*3  = step—→ test-prog state2 state3 state3 t-NoOp t-NoOp t-NoOp 3—→*3 2—→3 
     where
     2—→3 : test-prog , state2 —→ state3 , t-NoOp
     2—→3 = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
@@ -173,4 +173,4 @@ test-step-bgtz-l = step-Bgtz-l test-prog-bgtz-l state-i (s≤s z≤n)  (s≤s (s
 
 
 
-  
+   

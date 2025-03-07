@@ -5,10 +5,6 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym;
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<; toℕ)
 open import Data.List.Base using (List)
--- open import Agda.Builtin.Bool
--- open import Agda.Builtin.Equality
--- open import Agda.Builtin.Sigma
--- open import Agda.Primitive
 
 data Instruction : Set where
   NoOp  : Instruction
@@ -52,11 +48,11 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
       
-    let    r1_val = lookup (s .State.registers) r1
-    in let r2_val = lookup (s .State.registers) r2
-    in let    sum = r1_val + r2_val
-    in let      r = updateAt (s .State.registers) dest (λ x → sum)
-    in let      t = ⟨ Add dest r1 r2 , r1_val ∷ r2_val ∷ sum ∷ [] ⟩
+    let r1_val = lookup (s .State.registers) r1
+        r2_val = lookup (s .State.registers) r2
+        sum = r1_val + r2_val
+        r = updateAt (s .State.registers) dest (λ x → sum)
+        t = ⟨ Add dest r1 r2 , r1_val ∷ r2_val ∷ sum ∷ [] ⟩
     
     in p , s —→ [ (suc (s .State.pc)) , r ] , t
     
@@ -66,11 +62,11 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
 
-    let    r1_val = lookup (s .State.registers) r1
-    in let r2_val = lookup (s .State.registers) r2
-    in let    dif = r1_val ∸ r2_val
-    in let      r = updateAt (s .State.registers) dest (λ x → dif)
-    in let      t = ⟨ Sub dest r1 r2 , r1_val ∷ r2_val ∷ dif ∷ [] ⟩
+    let r1_val = lookup (s .State.registers) r1
+        r2_val = lookup (s .State.registers) r2
+        dif = r1_val ∸ r2_val
+        r = updateAt (s .State.registers) dest (λ x → dif)
+        t = ⟨ Sub dest r1 r2 , r1_val ∷ r2_val ∷ dif ∷ [] ⟩
     
     in p , s —→ [ (suc (s .State.pc)) , r ] , t
       
@@ -79,10 +75,10 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Addi dest r1 temp)) →
 
-    let    r1_val = lookup (s .State.registers) r1
-    in let    sum = r1_val + temp
-    in let      r = updateAt (s .State.registers) dest (λ x → sum)
-    in let      t = ⟨ Addi dest r1 temp , r1_val ∷ sum ∷ 0 ∷ [] ⟩
+    let r1_val = lookup (s .State.registers) r1
+        sum = r1_val + temp
+        r = updateAt (s .State.registers) dest (λ x → sum)
+        t = ⟨ Addi dest r1 temp , r1_val ∷ sum ∷ 0 ∷ [] ⟩
     
     in p , s —→ [ (suc (s .State.pc)) , r ] , t
 
@@ -120,9 +116,9 @@ infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
     done : ∀ {n} → ∀ (p : Program n) → (s : State) (t : Trace) 
       → p , s —→* s , t
-    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t : Trace)
-      → p , s₁ —→* s₂ , t
-      → p , s —→ s₁ , t
-      → p , s —→* s₂ , t
+    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t t₁ t₂ : Trace)
+      → p , s₁ —→* s₂ , t₂
+      → p , s —→ s₁ , t₁
+      → p , s —→* s₂ , t₂
 
 
