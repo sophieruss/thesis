@@ -148,7 +148,7 @@ r32-jmp = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 �
 state-uno = [ 0 , r32-jmp ]
 state-dos = [ 3 , r32-jmp ]
 
-test-step-jmp : test-prog-jmp , state-uno —→ state-dos , _
+test-step-jmp : test-prog-jmp , state-uno —→ state-dos , ⟨ Jump 3 , 3 ∷ 0 ∷ 0 ∷ [] ⟩
 test-step-jmp = step-Jump test-prog-jmp state-uno  (s≤s z≤n) ((s≤s (s≤s (s≤s (s≤s z≤n))))) refl
 
 -- 'Bgtz' test
@@ -164,12 +164,12 @@ state-ii-l = [ 1 , r32-bgtz-g ]
 state-ii-g = [ 3 , r32-bgtz-g ]
 
 -- greater
-test-step-bgtz-g : test-prog-bgtz-g , state-i —→ state-ii-g , ⟨ Bgtz (# 1) 3 , 3 ∷ 0 ∷ 0 ∷ [] ⟩
-test-step-bgtz-g = {!  step-Bgtz-g !} --step-Bgtz-g (test-prog-bgtz-g) state-i (s≤s z≤n) (s≤s (s≤s (s≤s (s≤s z≤n)))) (s≤s z≤n) refl
+test-step-bgtz-g : test-prog-bgtz-g , state-i —→ state-ii-g , ⟨ Bgtz (# 1) 3 , 1 ∷ 3 ∷ 0 ∷ [] ⟩
+test-step-bgtz-g = step-Bgtz-g (test-prog-bgtz-g) state-i (s≤s z≤n) (s≤s (s≤s (s≤s (s≤s z≤n)))) (s≤s z≤n) refl
 
 -- less
-test-step-bgtz-l : test-prog-bgtz-l , state-i —→ state-ii-l , ⟨ Bgtz (# 0) 3 , 1 ∷ 0 ∷ 0 ∷ [] ⟩
-test-step-bgtz-l = {!   !} --step-Bgtz-l test-prog-bgtz-l state-i (s≤s z≤n)  (s≤s (s≤s (s≤s (s≤s z≤n)))) refl refl
+test-step-bgtz-l : test-prog-bgtz-l , state-i —→ state-ii-l , ⟨ Bgtz (# 0) 3 , 0 ∷ 1 ∷ 0 ∷ [] ⟩
+test-step-bgtz-l = step-Bgtz-l test-prog-bgtz-l state-i (s≤s z≤n)  (s≤s (s≤s (s≤s (s≤s z≤n)))) refl refl
 
 
 
