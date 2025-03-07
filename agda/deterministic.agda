@@ -1,7 +1,7 @@
 module deterministic where
 
 open import steps
-open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
+open import Data.Nat using (ℕ; compare; _≤_; _≥_;  _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; sym; trans; subst)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)
@@ -14,7 +14,6 @@ det : ∀ {n} {p : Program n} {s s₁ s₂ : State}
     → p , s —→ s₁
     → p , s —→ s₂
     → s₁ ≡ s₂
-
 
 det (step-NoOp _ _ prf cmd-prf) (step-NoOp _ _ prf₁ cmd-prf₁) = refl
 det (step-NoOp _ _ prf cmd-prf) (step-Add _ _ prf₁ cmd-prf₁) with () ← trans (sym cmd-prf) cmd-prf₁
@@ -67,8 +66,9 @@ det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Sub _ _ prf₁ cmd-prf₁) wit
 det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Addi _ _ prf₁ cmd-prf₁) with () ← trans (sym cmd-prf) cmd-prf₁
 det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Jump _ _ prf₁ prf4 cmd-prf₁) with () ← trans (sym cmd-prf) cmd-prf₁
 det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Bgtz-g _ _ prf₁ prf4 prf5 cmd-prf₁) with trans (sym cmd-prf) cmd-prf₁
-... | refl with ( sym prf3)
-... | x =  contradiction (sym prf3) {!  prf5  !} 
+... | refl = {!!}
+-- ... | x =  contradiction (sym prf3) {!  prf5  !} 
+-- ... | x = ⊥-elim {! (sym prf3)  !}
 
 
 -- I want to prove that prf3 and prf5 could not be the same
@@ -94,7 +94,6 @@ det (step-Bgtz-g _ _ prf prf2 prf3 cmd-prf) (step-Bgtz-l _ _ prf₁ prf4 prf5 cm
 -- not . I think clements was incorrect.
 -- det : ∀ {n} {p : Program n} {s s₁ s₂ : State}
 --     → p , s₁ —→ s
---     → p , s₂ —→ s
 --     → s₁ ≡ s₂ 
 
 
