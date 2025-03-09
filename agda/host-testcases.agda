@@ -1,6 +1,7 @@
 
 module host-testcases where
 
+open import commands
 open import host
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)

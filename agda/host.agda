@@ -1,42 +1,11 @@
 module host where
 
+open import commands
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<; toℕ)
 open import Data.List.Base using (List)
-
-data Instruction : Set where
-  NoOp  : Instruction
-  Add   : Fin 32 → Fin 32 → Fin 32 → Instruction
-  Sub   : Fin 32 → Fin 32 → Fin 32 → Instruction
-  Addi  : Fin 32 → Fin 32 → ℕ → Instruction
-  Jump  : ℕ → Instruction
-  Bgtz  : Fin 32 → ℕ → Instruction 
-  Empty : Instruction
-
-record Program (n : ℕ) : Set where
-  constructor program
-  field 
-    instructions : Vec Instruction n
-
-record State : Set where
-  constructor [_,_]
-  field
-    pc : ℕ
-    registers : Vec ℕ 32
-   
-record Trace : Set where
-  constructor ⟨_,_⟩
-  field
-    instr : Instruction
-    args :  Vec ℕ 3
-
-addiHelper : Vec ℕ 32 →  Fin 32 → Fin 32 → ℕ → Vec ℕ 32
-addiHelper vec dest r1 temp = 
-  let newelem = (lookup vec ( r1 )) + temp
-  in updateAt vec ( dest ) (λ x → newelem)
-
 
 infix 4 _,_—→_,_
 data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
