@@ -1,2 +1,5 @@
 *.agdaai
 del.*
+*.json
+__pycache__
+*.venv
