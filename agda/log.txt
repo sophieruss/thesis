@@ -2,6 +2,11 @@ week nine
 [] prove determinism
 [] put in sentry
 [] trace values
+-- There are issues with multi-step for how 'done' is handled -- for host the last step must be Empty, to allow for EmptyTrace, or the case of 'done'/no step
+-- e.g. we would not have a trace for the last value, instead it is 'done'. to handle for this, we must have an EmptyTrace
+-- it looks weird to read  `statec —→* stated , emptyTrace` as we might intuitively expect `statec —→* stated , emptyTrace`
+-- however, we must consider the last step, where `stated —→* stated , emptyTrace` as it would not make sense for there to be a trace sent
+
 
 [x] bgtz - can there be negatives (are we using integers or naturals) ? store assumes it must be nats? 
   yes, assume nats. sub j goes to zero then

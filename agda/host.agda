@@ -13,6 +13,7 @@ data Instruction : Set where
   Addi  : Fin 32 → Fin 32 → ℕ → Instruction
   Jump  : ℕ → Instruction
   Bgtz  : Fin 32 → ℕ → Instruction 
+  Empty : Instruction
 
 record Program (n : ℕ) : Set where
   constructor program
@@ -112,13 +113,17 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
       bgtz-pc ∷ 
       0 ∷ [] ⟩
 
+emptyTrace : Trace
+emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+
 infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
-    done : ∀ {n} → ∀ (p : Program n) → (s : State) (t : Trace) 
-      → p , s —→* s , t
-    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t t₁ t₂ : Trace)
+    done : ∀ {n} → ∀ (p : Program n) → (s : State) 
+      → p , s —→* s , emptyTrace -- Is there a way to ignore trace?
+    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
       → p , s₁ —→* s₂ , t₂
       → p , s —→ s₁ , t₁
       → p , s —→* s₂ , t₂
+
 
 

@@ -8,7 +8,6 @@ open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; le
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)
 open import Agda.Builtin.List
 
-
 -- 'NoOp' test
 test-prog : Program 4
 test-prog = program ( NoOp ∷ NoOp ∷ NoOp ∷ NoOp ∷ [] )
@@ -29,21 +28,20 @@ test-step-noOp : test-prog , state2 —→ state3 , t-NoOp
 test-step-noOp = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
 -- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
 
-test-multi-step-noOp : test-prog , state1 —→* state3 , t-NoOp
-test-multi-step-noOp = step—→ test-prog state1 state2 state3 t-NoOp t-NoOp t-NoOp 2—→*3 1—→2
+test-multi-step-noOp : test-prog , state1 —→* state3 , emptyTrace
+test-multi-step-noOp = step—→ test-prog state1 state2 state3 t-NoOp emptyTrace 2—→*3 1—→2
   where
   1—→2 : test-prog , state1 —→ state2 , t-NoOp
   1—→2 = step-NoOp test-prog state1 (s≤s (s≤s z≤n)) refl
 
-  2—→*3 : test-prog , state2 —→* state3 , t-NoOp
-  2—→*3  = step—→ test-prog state2 state3 state3 t-NoOp t-NoOp t-NoOp 3—→*3 2—→3 
+  2—→*3 : test-prog , state2 —→* state3 , emptyTrace
+  2—→*3  = step—→ test-prog state2 state3 state3 t-NoOp emptyTrace 3—→*3 2—→3
     where
     2—→3 : test-prog , state2 —→ state3 , t-NoOp
     2—→3 = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
 
-    3—→*3 : test-prog , state3 —→* state3 , t-NoOp
-    3—→*3 = done test-prog state3 t-NoOp
-
+    3—→*3 : test-prog , state3 —→* state3 , emptyTrace
+    3—→*3 = done test-prog state3
 
 -- 'ADD' test
 test-prog-add : Program 4
@@ -65,44 +63,23 @@ tb = ⟨ Add (# 3) (# 2) (# 1) , 2 ∷ 1 ∷ 3 ∷ [] ⟩
 tc = ⟨ Add (# 4) (# 3) (# 2) , 3 ∷ 2 ∷ 5 ∷ [] ⟩
 td = ⟨ Add (# 5) (# 4) (# 3) , 5 ∷ 3 ∷ 8 ∷ [] ⟩
 
-test-step-add : test-prog-add , statea —→ stateb , ta
-test-step-add = step-Add test-prog-add statea (s≤s z≤n) refl
+test-step-add-ab : test-prog-add , statea —→ stateb , ta
+test-step-add-ab = step-Add test-prog-add statea (s≤s z≤n) refl
 
--- test-multi-step-add : test-prog-add , statea —→* stated , _
--- test-multi-step-add = step—→ test-prog-add statea stateb stated {!   !} {!   !} {!   !}
-  -- step—→ test-prog-add statea stateb stated b—→*d a—→b
-  -- where
-  -- a—→b : test-prog-add , statea —→ stateb , ?
-  -- a—→b = step-Add test-prog-add statea (s≤s z≤n) refl
+test-step-add-bc : test-prog-add , stateb —→ statec , tb
+test-step-add-bc = step-Add test-prog-add stateb (s≤s (s≤s z≤n)) refl
 
-  -- b—→*d : test-prog-add , stateb —→* stated , ?
-  -- b—→*d = {!!}
-  --   where
-    
-  --   b—→c : test-prog-add , stateb —→ statec , ?
-  --   b—→c = step-Add test-prog-add stateb(s≤s (s≤s z≤n)) refl
+test-step-add-cd : test-prog-add , statec —→ stated , tc
+test-step-add-cd = step-Add test-prog-add statec (s≤s (s≤s (s≤s z≤n))) refl
 
-  --   c—→d : test-prog-add , statec —→ stated , ?
-  --   c—→d =  step-Add test-prog-add statec (s≤s (s≤s (s≤s z≤n))) refl 
+test-step-add-d→*d :  test-prog-add , stated —→* stated , ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+test-step-add-d→*d = done test-prog-add stated 
 
--- test-multi-step-add : test-prog-add , statea —→* stated , _
--- test-multi-step-add = step—→ test-prog-add statea stateb stated _ b—→*d a—→b
---   where
---   a—→b : test-prog-add , statea —→ stateb , _
---   a—→b = step-Add test-prog-add statea (s≤s z≤n) refl
+test-step-add-c→*d : test-prog-add , statec —→* stated , emptyTrace
+test-step-add-c→*d = step—→ test-prog-add statec stated stated tc emptyTrace test-step-add-d→*d test-step-add-cd 
 
---   b—→*d : test-prog-add , stateb —→* stated , _
---   b—→*d = step—→ test-prog-add stateb statec stated _ {! c—→*d  !} b—→c
---   -- b—→*d  = step—→ test-prog-add stateb statec stated ((step—→ test-prog-add statec stated stated (done test-prog-add stated td) c—→d)) b—→c
---     where
---     b—→c : test-prog-add , stateb —→ statec , _
---     b—→c = {!   !}
---       -- step-Add test-prog-add stateb(s≤s (s≤s z≤n)) refl
-
---     c—→*d : test-prog-add , statec —→ stated , _
---     c—→*d = {!   !} 
---       -- step-Add test-prog-add statec (s≤s (s≤s (s≤s z≤n))) refl 
-   
+test-step-add-b→*d : test-prog-add , stateb —→* stated , emptyTrace
+test-step-add-b→*d = step—→ test-prog-add stateb statec stated tb emptyTrace test-step-add-c→*d test-step-add-bc
 
 -- 'SUB' test
 test-prog-sub : Program 1
@@ -135,7 +112,6 @@ state-two = [ 1 , r32-addi-end ]
 
 test-step-addi : test-prog-addi , state-one —→ state-two , _
 test-step-addi =  step-Addi test-prog-addi state-one (s≤s z≤n) refl
-
 
 
 -- 'Jump' test
@@ -173,4 +149,4 @@ test-step-bgtz-l = step-Bgtz-l test-prog-bgtz-l state-i (s≤s z≤n)  (s≤s (s
 
 
 
-   
+    
