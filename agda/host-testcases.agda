@@ -111,7 +111,7 @@ r32-addi-end = 510 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 
 state-one = [ 0 , r32-addi-start ]
 state-two = [ 1 , r32-addi-end ]
 
-test-step-addi : test-prog-addi , state-one —→ state-two , _
+test-step-addi : test-prog-addi , state-one —→ state-two , ⟨ Addi (# 0) (# 1) 500 , 10 ∷ 510 ∷ 0 ∷ [] ⟩
 test-step-addi =  step-Addi test-prog-addi state-one (s≤s z≤n) refl
 
 
@@ -150,4 +150,4 @@ test-step-bgtz-l = step-Bgtz-l test-prog-bgtz-l state-i (s≤s z≤n)  (s≤s (s
 
 
 
-    
+     

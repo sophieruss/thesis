@@ -82,9 +82,6 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
       bgtz-pc ∷ 
       0 ∷ [] ⟩
 
-emptyTrace : Trace
-emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩
-
 infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
     done : ∀ {n} → ∀ (p : Program n) → (s : State) 
