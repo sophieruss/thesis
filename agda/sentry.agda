@@ -27,7 +27,6 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     in t , p , s —→ [ (suc (s .State.pc)) , r ] 
     
 
-
   step-Sub :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
@@ -77,7 +76,7 @@ infix 4 _,_,_—→*_
 data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set where
     done : ∀ {n} → ∀ (t : Trace) (p : Program n) → (s : State) 
       → t , p , s —→* s
-    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t t₁ t₂ : Trace)
+    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t t₁ : Trace)
       → t₁ , p , s₁ —→* s₂
       → t , p , s —→ s₁
       → t , p , s —→* s₂
