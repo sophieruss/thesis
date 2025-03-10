@@ -1,7 +1,16 @@
+find . -type f -name "*.agdai" -exec rm -f {} +
+week 10
+[] toss in more stuff?
+[] how to prove host-sentry are in step 
+    - test cases  
+    - probably compare to other machine (python sim) ?
+[] determinism proof - Brian?
+
 week nine
-[] prove determinism
-[] put in sentry
-[] trace values
+[-] prove determinism
+[x] put in sentry
+[x] trace values
+[x] script to covert to host, and to sentry 
 -- There are issues with multi-step for how 'done' is handled -- for host the last step must be Empty, to allow for EmptyTrace, or the case of 'done'/no step
 -- e.g. we would not have a trace for the last value, instead it is 'done'. to handle for this, we must have an EmptyTrace
 -- it looks weird to read  `statec —→* stated , emptyTrace` as we might intuitively expect `statec —→* stated , emptyTrace`

@@ -1,4 +1,4 @@
-module commands where
+module agda.commands where
 
 open import Data.Nat using (ℕ)
 open import Data.Fin using (Fin)

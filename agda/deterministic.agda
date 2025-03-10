@@ -1,7 +1,7 @@
-module deterministic where
+module agda.deterministic where
 
-open import commands
-open import steps
+open import agda.commands
+open import agda.steps
 open import Data.Nat using (ℕ; compare; _≤_; _≥_;  _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; sym; trans; subst)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
