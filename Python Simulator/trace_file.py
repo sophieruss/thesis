@@ -5,11 +5,11 @@ from commands import Add, Addi, Sub, Jump, Bgtz, Sw, Lw_U, Lw_T, Get, Put, trust
 def send_trace(trace):
     trace = trace[0].__dict__, trace[1:]
 
-    with open('trace.json', 'w') as f:
+    with open('Python Simulator/programs/trace.json', 'w') as f:
         json.dump(trace, f)
         f.write('\n')
     
-    with open('trace_history.json', 'a') as f:
+    with open('Python Simulator/programs/trace_history.json', 'a') as f:
         json.dump(trace, f)
         f.write('\n')
     
@@ -19,7 +19,7 @@ def send_trace(trace):
 
                 
 def read_trace():
-    with open('trace.json', 'r') as f:
+    with open('Python Simulator/programs/trace.json', 'r') as f:
         trace = json.load(f)
     cmd = trace[0]
     

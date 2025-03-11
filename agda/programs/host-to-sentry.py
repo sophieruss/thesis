@@ -1,6 +1,6 @@
-INPUT = 'Agda/programs/outputs/simulator.agda'
-OUTPUT = 'Agda/programs/outputs/simulator-Sentry.agda'
-host_and_sentry = False #keep host code in outputted file
+INPUT = 'Agda/programs/outputs/loop.agda'
+OUTPUT = 'Agda/programs/outputs/loop-Sentry.agda'
+host_and_sentry = True #keep host code in outputted file
 
 # sort of works with agda/host-testcases.agda
 # 1. change emptyTracs to the correct trace (they will be holes)

@@ -1,5 +1,5 @@
 
-module test-cases.host-testcases where
+module agda.test-cases.host-testcases where
 
 open import agda.commands
 open import agda.host

@@ -242,7 +242,7 @@ def parse_command(host, cmd):
 
 def main():
     
-    with open('trace_history.json', 'w') as f:
+    with open('Python Simulator/programs/trace_history.json', 'w') as f:
         f.write('')
     print("hello host")
     

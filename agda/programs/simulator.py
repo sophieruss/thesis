@@ -1,8 +1,9 @@
 INPUT = "Python Simulator/programs/fib.csv"
-OUTPUT = 'Agda/programs/outputs/simulator.agda'
+OUTPUT = 'Agda/programs/outputs/OUT.agda'
 firstline = OUTPUT.replace('/', '.').replace('.agda', '')
 
-def helper(prev_reg, line):
+def helper(prev_reg, line, pc):
+    next_pc = -1
     prog, trace = None, None
     reg = prev_reg.copy()
     match (line[0]):
@@ -35,18 +36,23 @@ def helper(prev_reg, line):
             a = int(line[1])
             prog = f"Jump {line[1]}"
             trace = f"⟨ {prog} , {a} ∷ 0 ∷ 0 ∷ [] ⟩"
+            next_pc = int(line[1]) - 1 # because we will increment it later
             
         case "Bgtz":
-            reg = int(line[1])
-            pc = int(line[2])
+            reg = prev_reg.copy()
             prog = f"Bgtz (# {line[1]}) {line[2]}"
-            trace = f"⟨ {prog} , {prev_reg[reg]} ∷ {pc} ∷ 0 ∷ [] ⟩"
+            if (prev_reg[int(line[1])] > 0):
+                next_pc = int(line[2]) - 1 # because we will increment it later
+                trace = f"⟨ {prog} , {prev_reg[int(line[1])]} ∷ {int(line[2])} ∷ 0 ∷ [] ⟩"
+
+            else:
+                trace = f"⟨ {prog} , {prev_reg[int(line[1])]} ∷ {pc+1} ∷ 0 ∷ [] ⟩"                
         
         case _:
             prog = "NoOp"
             trace = "⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
         
-    return prog, reg, trace
+    return prog, reg, trace, next_pc
 
 def proof_helper(prog, stateA, trace):
     match prog.split()[0]:
@@ -59,38 +65,58 @@ def proof_helper(prog, stateA, trace):
         case 'Jump':
             return f"step-Jump prog state-{stateA} ? ? refl"
         case 'Bgtz':
-            if (trace.split()[3] > 0):
+            if (int(trace.split()[6]) > 0):
                 return f"step-Bgtz-g prog state-{stateA} ? ? ? refl"
             return f"step-Bgtz-l prog state-{stateA} ? ? ? refl"
         case _:
             return f"step-NoOp prog state-{stateA} ? refl"
            
 def agdaList(oldlist):
-        new = ' ∷ '.join(str(x) for x in oldlist)
-        return new + ' ∷ []'
+    new = ' ∷ '.join(str(x) for x in oldlist)
+    return new + ' ∷ []'
 
-        
-with open(INPUT, 'r') as f:
-    
-    program, registers, traces = [None] * 100, [None] * 100, [None] * 100
+def readfile():    
+    with open(INPUT, 'r') as f:
+        lines = []
+        for line in f:
+            if line.strip() == '':
+                break
+            lines.append(line)
+        return lines
+
+def main():
+    program, registers, traces, pcs = [None] * 100, [None] * 100, [None] * 100, [None] * 100
     empty_reg = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-    num_instructions = 0
-    for i, line in enumerate(f):
+    num_states = 0  # not the number of instruction(could be >), because we could loop
+    f = readfile()
+    
+    i = 0
+    while i < len(f) and num_states < 50:
+        line = f[i]
+    # for i, line in enumerate(f):
         if line[0] == '#':
             break
         if line == '\n':
             continue
         line = line.split() 
         prev_reg = empty_reg       
-        if (i>0):
-            prev_reg = registers[i-1]
-        program[i], registers[i], traces[i] = helper(prev_reg, line)
-        num_instructions += 1
-    program = program[:num_instructions]
-    registers = [empty_reg] + registers[:num_instructions-1]
+        if (num_states>0):
+            prev_reg = registers[num_states-1]
+                        
+        program[num_states], registers[num_states], traces[num_states], next_pc = helper(prev_reg, line, i)
+        pcs[num_states] = i
+        if next_pc != -1:
+            i = next_pc + 1 # need to increment this bc its one off for some reason
+        else:
+            i = i + 1 # increment pc!
+        num_states += 1        
+        
+        
+    program = program[:num_states]
+    registers = [empty_reg] + registers[:num_states-1]
     # remove last register (we wouldnt use it?), and add the starting state
-    traces = traces[:num_instructions]
+    traces = traces[:num_states]
+    pcs = pcs[:num_states]
            
         
     with open(OUTPUT, 'w') as f:
@@ -114,7 +140,7 @@ with open(INPUT, 'r') as f:
             f.write(f"r-{i} = {agdaList(registers[i])}\n")
         
         for i in range(0, len(traces)):
-            f.write(f"state-{i} = [ {i} , r-{i} ] \n")
+            f.write(f"state-{i} = [ {pcs[i]} , r-{i} ] \n")
             
         for i in range(0, len(registers)):
             f.write(f"τ-{i} ")
@@ -131,5 +157,5 @@ with open(INPUT, 'r') as f:
     print("Yay!!! Agda program (with holes) is in `" + OUTPUT + "`")
 
 
-
+main()
 
