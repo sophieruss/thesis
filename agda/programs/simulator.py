@@ -1,4 +1,4 @@
-INPUT = "Python Simulator/programs/fib.csv"
+INPUT = "Python Simulator/programs/basic_loop.csv"
 OUTPUT = 'Agda/programs/outputs/OUT.agda'
 firstline = OUTPUT.replace('/', '.').replace('.agda', '')
 
@@ -46,11 +46,23 @@ def helper(prev_reg, line, pc):
                 trace = f"⟨ {prog} , {prev_reg[int(line[1])]} ∷ {int(line[2])} ∷ 0 ∷ [] ⟩"
 
             else:
-                trace = f"⟨ {prog} , {prev_reg[int(line[1])]} ∷ {pc+1} ∷ 0 ∷ [] ⟩"                
-        
-        case _:
-            prog = "NoOp"
-            trace = "⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
+                trace = f"⟨ {prog} , {prev_reg[int(line[1])]} ∷ {pc+1} ∷ 0 ∷ [] ⟩"     
+                
+        case "Enable":
+            prog = "Enable"
+            trace = "⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
+    
+        case "Disable":
+            prog = "Disable"
+            trace = "⟨ Disable , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
+            
+        case "NoOp":
+            prog = "Disable"
+            trace = "⟨ Disable , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
+                       
+        case _: #for all instructions I don't have yet, just increment pc +1
+            prog = "Enable"
+            trace = "⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
         
     return prog, reg, trace, next_pc
 
@@ -68,6 +80,10 @@ def proof_helper(prog, stateA, trace):
             if (int(trace.split()[6]) > 0):
                 return f"step-Bgtz-g prog state-{stateA} ? ? ? refl"
             return f"step-Bgtz-l prog state-{stateA} ? ? ? refl"
+        case 'Enable':
+            return f"step-Enable prog state-{stateA} ? refl"
+        case 'Disable':
+            return f"step-Disable prog state-{stateA} ? refl"
         case _:
             return f"step-NoOp prog state-{stateA} ? refl"
            
@@ -127,6 +143,7 @@ def main():
                 "open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)\n" +
                 "open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)\n" +
                 "open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)\n" +
+                "open import Data.Bool using (Bool; true; false)\n" +
                 "open import Agda.Builtin.List\n")
         
         f.write(f"prog : Program {len(registers)}\n")
@@ -140,7 +157,7 @@ def main():
             f.write(f"r-{i} = {agdaList(registers[i])}\n")
         
         for i in range(0, len(traces)):
-            f.write(f"state-{i} = [ {pcs[i]} , r-{i} ] \n")
+            f.write(f"state-{i} = [ {pcs[i]} , r-{i} , true ]\n")
             
         for i in range(0, len(registers)):
             f.write(f"τ-{i} ")

@@ -11,7 +11,10 @@ data Instruction : Set where
   Sub   : Fin 32 → Fin 32 → Fin 32 → Instruction
   Addi  : Fin 32 → Fin 32 → ℕ → Instruction
   Jump  : ℕ → Instruction
-  Bgtz  : Fin 32 → ℕ → Instruction 
+  Bgtz  : Fin 32 → ℕ → Instruction
+  Enable : Instruction
+  Disable : Instruction
+
   Empty : Instruction
 
 record Program (n : ℕ) : Set where

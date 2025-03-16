@@ -1,13 +1,14 @@
-module Agda.programs.outputs.loop2 where
+module Agda.programs.outputs.loop where
 open import agda.commands
 open import agda.host
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)
+open import Data.Bool using (Bool; true; false)
 open import Agda.Builtin.List
 prog : Program 20
-prog = program (NoOp ∷ Addi (# 4) (# 0) 25 ∷ Addi (# 1) (# 0) 5 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Addi (# 10) (# 10) 10 ∷ NoOp ∷ [])
+prog = program (Enable ∷ Addi (# 4) (# 0) 25 ∷ Addi (# 1) (# 0) 5 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Add (# 0) (# 0) (# 1) ∷ Sub (# 2) (# 4) (# 0) ∷ Bgtz (# 2) 3 ∷ Addi (# 10) (# 10) 10 ∷ Enable ∷ [])
 r-0 r-1 r-2 r-3 r-4 r-5 r-6 r-7 r-8 r-9 r-10 r-11 r-12 r-13 r-14 r-15 r-16 r-17 r-18 r-19  : Vec ℕ 32
 r-0 = 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r-1 = 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
@@ -29,28 +30,28 @@ r-16 = 25 ∷ 5 ∷ 5 ∷ 0 ∷ 25 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷
 r-17 = 25 ∷ 5 ∷ 0 ∷ 0 ∷ 25 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r-18 = 25 ∷ 5 ∷ 0 ∷ 0 ∷ 25 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r-19 = 25 ∷ 5 ∷ 0 ∷ 0 ∷ 25 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 10 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
-state-0 = [ 0 , r-0 ] 
-state-1 = [ 1 , r-1 ] 
-state-2 = [ 2 , r-2 ] 
-state-3 = [ 3 , r-3 ] 
-state-4 = [ 4 , r-4 ] 
-state-5 = [ 5 , r-5 ] 
-state-6 = [ 3 , r-6 ] 
-state-7 = [ 4 , r-7 ] 
-state-8 = [ 5 , r-8 ] 
-state-9 = [ 3 , r-9 ] 
-state-10 = [ 4 , r-10 ] 
-state-11 = [ 5 , r-11 ] 
-state-12 = [ 3 , r-12 ] 
-state-13 = [ 4 , r-13 ] 
-state-14 = [ 5 , r-14 ] 
-state-15 = [ 3 , r-15 ] 
-state-16 = [ 4 , r-16 ] 
-state-17 = [ 5 , r-17 ] 
-state-18 = [ 6 , r-18 ] 
-state-19 = [ 7 , r-19 ] 
+state-0 = [ 0 , r-0 , true ]
+state-1 = [ 1 , r-1 , true ]
+state-2 = [ 2 , r-2 , true ]
+state-3 = [ 3 , r-3 , true ]
+state-4 = [ 4 , r-4 , true ]
+state-5 = [ 5 , r-5 , true ]
+state-6 = [ 3 , r-6 , true ]
+state-7 = [ 4 , r-7 , true ]
+state-8 = [ 5 , r-8 , true ]
+state-9 = [ 3 , r-9 , true ]
+state-10 = [ 4 , r-10 , true ]
+state-11 = [ 5 , r-11 , true ]
+state-12 = [ 3 , r-12 , true ]
+state-13 = [ 4 , r-13 , true ]
+state-14 = [ 5 , r-14 , true ]
+state-15 = [ 3 , r-15 , true ]
+state-16 = [ 4 , r-16 , true ]
+state-17 = [ 5 , r-17 , true ]
+state-18 = [ 6 , r-18 , true ]
+state-19 = [ 7 , r-19 , true ]
 τ-0 τ-1 τ-2 τ-3 τ-4 τ-5 τ-6 τ-7 τ-8 τ-9 τ-10 τ-11 τ-12 τ-13 τ-14 τ-15 τ-16 τ-17 τ-18 τ-19  : Trace
-τ-0 = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
+τ-0 = ⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
 τ-1 = ⟨ Addi (# 4) (# 0) 25 , 0 ∷ 25 ∷ 0 ∷ [] ⟩ 
 τ-2 = ⟨ Addi (# 1) (# 0) 5 , 0 ∷ 5 ∷ 0 ∷ [] ⟩ 
 τ-3 = ⟨ Add (# 0) (# 0) (# 1) , 0 ∷ 5 ∷ 5 ∷ [] ⟩ 
@@ -69,9 +70,9 @@ state-19 = [ 7 , r-19 ]
 τ-16 = ⟨ Sub (# 2) (# 4) (# 0) , 25 ∷ 25 ∷ 0 ∷ [] ⟩ 
 τ-17 = ⟨ Bgtz (# 2) 3 , 0 ∷ 6 ∷ 0 ∷ [] ⟩ 
 τ-18 = ⟨ Addi (# 10) (# 10) 10 , 0 ∷ 10 ∷ 0 ∷ [] ⟩ 
-τ-19 = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
+τ-19 = ⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
 0→1 : prog , state-0 —→ state-1 , τ-0
-0→1 = step-NoOp prog state-0 (s≤s z≤n) refl
+0→1 = step-Enable prog state-0 (s≤s z≤n) refl
 1→2 : prog , state-1 —→ state-2 , τ-1
 1→2 = step-Addi prog state-1 (s≤s (s≤s z≤n)) refl
 2→3 : prog , state-2 —→ state-3 , τ-2

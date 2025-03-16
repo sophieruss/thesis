@@ -9,11 +9,7 @@ open import Data.List.Base using (List)
 
 infix 4 _,_,_—→_
 data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set where
-  step-NoOp : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
-    (prf : s .State.pc < n) → 
-    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
-    t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
-  
+   
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
@@ -71,6 +67,27 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf3 : (lookup (s .State.registers) src) > 0 ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
     t , p , s —→ [ bgtz-pc , (s .State.registers) ]
+
+
+  step-Enable : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Enable) →
+    t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
+    -- pc + 1
+
+  step-Disable : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Disable) →
+    t , p , s —→ [ (suc (suc (s .State.pc))) , (s .State.registers) ] 
+    -- pc + 2 
+  
+  step-NoOp : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
+    t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
+  
+
+
     
 infix 4 _,_,_—→*_
 data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set where

@@ -1,6 +1,6 @@
 INPUT = 'Agda/programs/outputs/loop.agda'
-OUTPUT = 'Agda/programs/outputs/loop-Sentry.agda'
-host_and_sentry = True #keep host code in outputted file
+OUTPUT = 'Agda/programs/outputs/OUT-Sentry.agda'
+host_and_sentry = False #keep host code in outputted file
 
 # sort of works with agda/host-testcases.agda
 # 1. change emptyTracs to the correct trace (they will be holes)
@@ -51,7 +51,7 @@ def translate(input_file, output_file, host_and_sentry):
 
                     modified_line1, modified_line2 = process_lines(stripped_line, next_stripped_line)
                     
-                    if host_and_sentry:
+                    if host_and_sentry: #write the host lines part
                         outfile.write(line)
                         outfile.write(next_line)
                     
@@ -65,6 +65,10 @@ def translate(input_file, output_file, host_and_sentry):
             elif "module" in line:
                 out = output_file.split("/")[-1].split(".")[0]
                 outfile.write("module Agda.programs.outputs."+ out +" where\nopen import agda.sentry\n")
+                i += 1
+            elif "state" in line:
+                stripped_line = stripped_line.replace(', true ', '')
+                outfile.write(indent + stripped_line + "\n")
                 i += 1
             else:
                 outfile.write(indent + stripped_line + "\n")

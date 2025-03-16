@@ -1,13 +1,14 @@
-module Agda.programs.outputs.simulator where
+module Agda.programs.outputs.fib where
 open import agda.commands
 open import agda.host
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<)
+open import Data.Bool using (Bool; true; false)
 open import Agda.Builtin.List
 prog : Program 16
-prog = program (NoOp ∷ Addi (# 1) (# 0) 1 ∷ Addi (# 2) (# 1) 0 ∷ Add (# 3) (# 1) (# 2) ∷ Add (# 4) (# 2) (# 3) ∷ Add (# 5) (# 3) (# 4) ∷ Add (# 6) (# 4) (# 5) ∷ Add (# 7) (# 5) (# 6) ∷ Add (# 8) (# 6) (# 7) ∷ Add (# 9) (# 7) (# 8) ∷ Add (# 10) (# 8) (# 9) ∷ Add (# 11) (# 9) (# 10) ∷ Add (# 12) (# 10) (# 11) ∷ Add (# 13) (# 11) (# 12) ∷ Add (# 14) (# 12) (# 13) ∷ NoOp ∷ [])
+prog = program (Enable ∷ Addi (# 1) (# 0) 1 ∷ Addi (# 2) (# 1) 0 ∷ Add (# 3) (# 1) (# 2) ∷ Add (# 4) (# 2) (# 3) ∷ Add (# 5) (# 3) (# 4) ∷ Add (# 6) (# 4) (# 5) ∷ Add (# 7) (# 5) (# 6) ∷ Add (# 8) (# 6) (# 7) ∷ Add (# 9) (# 7) (# 8) ∷ Add (# 10) (# 8) (# 9) ∷ Add (# 11) (# 9) (# 10) ∷ Add (# 12) (# 10) (# 11) ∷ Add (# 13) (# 11) (# 12) ∷ Add (# 14) (# 12) (# 13) ∷ NoOp ∷ [])
 r-0 r-1 r-2 r-3 r-4 r-5 r-6 r-7 r-8 r-9 r-10 r-11 r-12 r-13 r-14 r-15  : Vec ℕ 32
 r-0 = 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r-1 = 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
@@ -25,24 +26,24 @@ r-12 = 0 ∷ 1 ∷ 1 ∷ 2 ∷ 3 ∷ 5 ∷ 8 ∷ 13 ∷ 21 ∷ 34 ∷ 55 ∷ 89 
 r-13 = 0 ∷ 1 ∷ 1 ∷ 2 ∷ 3 ∷ 5 ∷ 8 ∷ 13 ∷ 21 ∷ 34 ∷ 55 ∷ 89 ∷ 144 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r-14 = 0 ∷ 1 ∷ 1 ∷ 2 ∷ 3 ∷ 5 ∷ 8 ∷ 13 ∷ 21 ∷ 34 ∷ 55 ∷ 89 ∷ 144 ∷ 233 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r-15 = 0 ∷ 1 ∷ 1 ∷ 2 ∷ 3 ∷ 5 ∷ 8 ∷ 13 ∷ 21 ∷ 34 ∷ 55 ∷ 89 ∷ 144 ∷ 233 ∷ 377 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
-state-0 = [ 0 , r-0 ] 
-state-1 = [ 1 , r-1 ] 
-state-2 = [ 2 , r-2 ] 
-state-3 = [ 3 , r-3 ] 
-state-4 = [ 4 , r-4 ] 
-state-5 = [ 5 , r-5 ] 
-state-6 = [ 6 , r-6 ] 
-state-7 = [ 7 , r-7 ] 
-state-8 = [ 8 , r-8 ] 
-state-9 = [ 9 , r-9 ] 
-state-10 = [ 10 , r-10 ] 
-state-11 = [ 11 , r-11 ] 
-state-12 = [ 12 , r-12 ] 
-state-13 = [ 13 , r-13 ] 
-state-14 = [ 14 , r-14 ] 
-state-15 = [ 15 , r-15 ] 
+state-0 = [ 0 , r-0 , true ]
+state-1 = [ 1 , r-1 , true ]
+state-2 = [ 2 , r-2 , true ]
+state-3 = [ 3 , r-3 , true ]
+state-4 = [ 4 , r-4 , true ]
+state-5 = [ 5 , r-5 , true ]
+state-6 = [ 6 , r-6 , true ]
+state-7 = [ 7 , r-7 , true ]
+state-8 = [ 8 , r-8 , true ]
+state-9 = [ 9 , r-9 , true ]
+state-10 = [ 10 , r-10 , true ]
+state-11 = [ 11 , r-11 , true ]
+state-12 = [ 12 , r-12 , true ]
+state-13 = [ 13 , r-13 , true ]
+state-14 = [ 14 , r-14 , true ]
+state-15 = [ 15 , r-15 , true ]
 τ-0 τ-1 τ-2 τ-3 τ-4 τ-5 τ-6 τ-7 τ-8 τ-9 τ-10 τ-11 τ-12 τ-13 τ-14 τ-15  : Trace
-τ-0 = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
+τ-0 = ⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
 τ-1 = ⟨ Addi (# 1) (# 0) 1 , 0 ∷ 1 ∷ 0 ∷ [] ⟩ 
 τ-2 = ⟨ Addi (# 2) (# 1) 0 , 1 ∷ 1 ∷ 0 ∷ [] ⟩ 
 τ-3 = ⟨ Add (# 3) (# 1) (# 2) , 1 ∷ 1 ∷ 2 ∷ [] ⟩ 
@@ -59,7 +60,7 @@ state-15 = [ 15 , r-15 ]
 τ-14 = ⟨ Add (# 14) (# 12) (# 13) , 144 ∷ 233 ∷ 377 ∷ [] ⟩ 
 τ-15 = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
 0→1 : prog , state-0 —→ state-1 , τ-0
-0→1 = step-NoOp prog state-0 (s≤s z≤n) refl
+0→1 = step-Enable prog state-0 (s≤s z≤n) refl
 1→2 : prog , state-1 —→ state-2 , τ-1
 1→2 = step-Addi prog state-1 (s≤s (s≤s z≤n)) refl
 2→3 : prog , state-2 —→ state-3 , τ-2

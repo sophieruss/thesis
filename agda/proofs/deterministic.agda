@@ -1,4 +1,4 @@
-module agda.deterministic where
+module agda.proofs.deterministic where
 
 open import agda.commands
 open import agda.steps
