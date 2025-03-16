@@ -1,8 +1,8 @@
 
-module agda.test-cases.testcases where
+module agda.test-cases.testcases-list where
 
-open import agda.commands
-open import agda.steps
+open import agda.commands-list
+open import agda.steps-list
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
@@ -18,14 +18,14 @@ r32 r32-evil : Vec ℕ 32
 r32 = replicate 32 0
 r32-evil = updateAt r32 (# 0) (λ x → 1)
 
-state0 = [ 0 , r32 ]
-state1 = [ 1 , r32 ]
-state2 = [ 2 , r32 ]
-state3 = [ 3 , r32 ]
+state0 = [ 0 , r32 , [] ] 
+state1 = [ 1 , r32 , [] ] 
+state2 = [ 2 , r32 , [] ]
+state3 = [ 3 , r32 , [] ]
 
 test-step-noOp : test-prog , state2 —→ state3  
 test-step-noOp = step-NoOp test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
--- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
+-- -- test-step = step-NoOp test-prog state2 (s<s (s<s z<s))
 
 test-multi-step-noOp : test-prog , state1 —→* state3
 test-multi-step-noOp = step—→ test-prog state1 state2 state3 2—→*3 1—→2
@@ -50,10 +50,10 @@ r32-add-b = 1 ∷ 1 ∷ 2 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 
 r32-add-c = 1 ∷ 1 ∷ 2 ∷ 3 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r32-add-d = 1 ∷ 1 ∷ 2 ∷ 3 ∷ 5 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 
-statea = [ 0 , r32-add-a ]
-stateb = [ 1 , r32-add-b ]
-statec = [ 2 , r32-add-c ]
-stated = [ 3 , r32-add-d ]
+statea = [ 0 , r32-add-a , [] ]
+stateb = [ 1 , r32-add-b , [] ]
+statec = [ 2 , r32-add-c , [] ]
+stated = [ 3 , r32-add-d , [] ]
 
 test-step-add : test-prog-add , statea —→ stateb 
 test-step-add = step-Add test-prog-add statea (s≤s z≤n) refl
@@ -83,8 +83,8 @@ r32-sub-start r32-sub-end : Vec ℕ 32
 r32-sub-start = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r32-sub-end = 3 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 
-stateI = [ 0 , r32-sub-start ]
-stateII = [ 1 , r32-sub-end  ]
+stateI = [ 0 , r32-sub-start , [] ]
+stateII = [ 1 , r32-sub-end  , [] ]
 
 test-step-sub : test-prog-sub , stateI —→ stateII
 test-step-sub =  step-Sub test-prog-sub stateI (s≤s z≤n) refl
@@ -99,8 +99,8 @@ r32-addi-start r32-addi-end : Vec ℕ 32
 r32-addi-start = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 r32-addi-end = 510 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 
-state-one = [ 0 , r32-addi-start ]
-state-two = [ 1 , r32-addi-end ]
+state-one = [ 0 , r32-addi-start , [] ]
+state-two = [ 1 , r32-addi-end , [] ]
 
 test-step-addi : test-prog-addi , state-one —→ state-two
 test-step-addi =  step-Addi test-prog-addi state-one (s≤s z≤n) refl
@@ -114,8 +114,8 @@ test-prog-jmp = program ( Jump 3 ∷ NoOp ∷ NoOp ∷ Add (# 0) (# 1) (# 2) ∷
 r32-jmp : Vec ℕ 32
 r32-jmp = 1 ∷ 10 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 
-state-uno = [ 0 , r32-jmp ]
-state-dos = [ 3 , r32-jmp ]
+state-uno = [ 0 , r32-jmp , [] ]
+state-dos = [ 3 , r32-jmp , [] ]
 
 test-step-jmp : test-prog-jmp , state-uno —→ state-dos
 test-step-jmp = step-Jump test-prog-jmp state-uno  (s≤s z≤n) ((s≤s (s≤s (s≤s (s≤s z≤n))))) refl
@@ -128,9 +128,9 @@ test-prog-bgtz-l = program ( Bgtz (# 0) 3 ∷ NoOp ∷ NoOp ∷ Add (# 0) (# 1) 
 r32-bgtz-g : Vec ℕ 32
 r32-bgtz-g = 0 ∷ 1 ∷ 7 ∷ 4 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ 0 ∷ []
 
-state-i = [ 0 , r32-bgtz-g ]
-state-ii-l = [ 1 , r32-bgtz-g ]
-state-ii-g = [ 3 , r32-bgtz-g ]
+state-i = [ 0 , r32-bgtz-g , [] ]
+state-ii-l = [ 1 , r32-bgtz-g , [] ]
+state-ii-g = [ 3 , r32-bgtz-g , [] ]
 
 -- greater
 test-step-bgtz-g : test-prog-bgtz-g , state-i —→ state-ii-g

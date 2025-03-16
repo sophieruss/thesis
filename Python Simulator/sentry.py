@@ -27,7 +27,10 @@ class sentry:
         return 0
         
     def fun_empty(self):
-        self.pc += 1                    # TODO: is this correct?
+        # self.pc += 1                    # TODO: is this correct?
+        #                                   # TODO: 3/11 Dont increment PC, because this is used to deal with empty traces
+        #                                   # TODO: But will host pc still increment and states will be off? Upon end of untrusted mode
+        #                                   # TODO: is the pc returned (like in a function call)
         return 2
 
 
@@ -290,6 +293,14 @@ class sentry:
             
         # TODO: PC done?
         
+    def fun_enable(self):
+        self.pc += 1
+        return self.fun_accept()
+        
+    def fun_disable(self):
+        self.pc += 2
+        return self.fun_accept()
+        
     def evil(self):
         self.R[5] = 500
         self.R[2] = 10
@@ -328,6 +339,12 @@ def parse_trace(self):
         ret = self.fun_alert()
     elif self.trace[0].command == "returnn":
         ret = self.fun_returnn()
+    elif self.trace[0].command == "trustedmode":
+        ret = self.fun_enable()
+    elif self.trace[0].command == "untrustedmode":
+        ret = self.fun_disable()
+    elif self.trace[0] == "empty":
+        ret = self.fun_empty()
     else:
         raise ValueError(f"Unknown command: {self.trace[0].command}")
 

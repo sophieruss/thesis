@@ -1,9 +1,9 @@
-module agda.commands where
+module agda.commands-list where
 
 open import Data.Nat using (ℕ)
 open import Data.Fin using (Fin)
 open import Data.Vec.Base using (Vec; _∷_; [])
-open import Data.Bool using (Bool)
+open import Data.List.Base using (List)
 
 
 data Instruction : Set where
@@ -21,21 +21,11 @@ record Program (n : ℕ) : Set where
     instructions : Vec Instruction n
 
 record State : Set where
-  constructor [_,_]
+  constructor [_,_,_]
   field
     pc : ℕ
     registers : Vec ℕ 32
-
-record HostState : Set where
-  constructor ⟨_,_⟩
-  field
-    state : State
-    trusted : Bool
-
-record SentryState : Set where
-  constructor ⟨_⟩
-  field
-    state : State
+    memory : List ℕ
    
 record Trace : Set where
   constructor ⟨_,_⟩
@@ -44,4 +34,4 @@ record Trace : Set where
     args :  Vec ℕ 3
 
 emptyTrace : Trace
-emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
+emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩

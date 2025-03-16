@@ -21,6 +21,10 @@ def send_trace(trace):
 def read_trace():
     with open('Python Simulator/programs/trace.json', 'r') as f:
         trace = json.load(f)
+    
+    if trace == []:
+        return ( "empty", [])   
+    
     cmd = trace[0]
     
     if cmd['command'] == 'add':
@@ -47,6 +51,10 @@ def read_trace():
         cmd = alert()
     elif cmd['command'] == 'returnn':   
         cmd = returnn()
+    elif cmd['command'] == 'trustedMode':
+        cmd = trustedMode()
+    elif cmd['command'] == 'untrustedMode':
+        cmd = untrustedMode()
         
     else:
         raise ValueError(f"Unknown command: {cmd['command']}")

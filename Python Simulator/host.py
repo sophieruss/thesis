@@ -13,7 +13,10 @@ class host:
         self.S = 0           # mode bit
         self.program = {}    # Z -> commands
         self.getQ = []
-        self.trace = []   
+        self.trace = []
+        
+        self.saved_regs = [0] * 32 # preserve registers before going to untrusted mode
+                                   # force policy that these do not get touched in untrusted mode
 
         # assumption
         self.M[0] = 0
@@ -176,12 +179,18 @@ class host:
         self.program[self.pc] = cmd
         self.S = 1
         self.pc += 1
+        self.trace = [self.program[self.pc]]
+        self.R = self.saved_regs.copy()
+        return send_trace(self.trace)
 
     def fun_disable(self):
         cmd = untrustedMode()
         self.program[self.pc] = cmd
         self.S = 0
         self.pc += 1
+        self.trace = [self.program[self.pc]]
+        self.saved_regs = self.R.copy()
+        return send_trace(self.trace)
 
     def fun_alert(self):
         cmd = alert()
