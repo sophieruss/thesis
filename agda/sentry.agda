@@ -94,8 +94,8 @@ data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set
     done : ∀ {n} → ∀ (t : Trace) (p : Program n) → (s : State) 
       → t , p , s —→* s
     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t t₁ : Trace)
-      → t₁ , p , s₁ —→* s₂
       → t , p , s —→ s₁
+      → t₁ , p , s₁ —→* s₂
       → t , p , s —→* s₂
 
 

@@ -29,13 +29,13 @@ test-step-Enable = step-Enable t-Enable test-prog state2 (s≤s (s≤s (s≤s z�
 
 test-multi-step-Enable : t-Enable , test-prog , state1 —→* state3 
 
-test-multi-step-Enable = step—→ test-prog state1 state2 state3 t-Enable t-Enable 2—→*3 1—→2 
+test-multi-step-Enable = step—→ test-prog state1 state2 state3 t-Enable t-Enable 1—→2 2—→*3 
  where
   1—→2 : t-Enable , test-prog , state1 —→ state2
   1—→2 = step-Enable t-Enable test-prog state1 (s≤s (s≤s z≤n)) refl
 
   2—→*3 : t-Enable , test-prog , state2 —→* state3
-  2—→*3  = step—→ test-prog state2 state3 state3 t-Enable emptyTrace 3—→*3 2—→3
+  2—→*3  = step—→ test-prog state2 state3 state3 t-Enable emptyTrace 2—→3 3—→*3
     where
     2—→3 : t-Enable , test-prog , state2 —→ state3
     2—→3 = step-Enable t-Enable test-prog state2 ((s≤s (s≤s (s≤s z≤n)))) refl
@@ -104,10 +104,10 @@ test-step-add-d→*d : emptyTrace , test-prog-add , stated —→* stated
 test-step-add-d→*d = done emptyTrace test-prog-add stated 
 
 test-step-add-c→*d : tc , test-prog-add , statec —→* stated
-test-step-add-c→*d = step—→ test-prog-add statec stated stated tc emptyTrace test-step-add-d→*d test-step-add-cd 
+test-step-add-c→*d = step—→ test-prog-add statec stated stated tc emptyTrace test-step-add-cd test-step-add-d→*d 
 
 test-step-add-b→*d : tb , test-prog-add , stateb —→* stated
-test-step-add-b→*d = step—→ test-prog-add stateb statec stated tb tc test-step-add-c→*d test-step-add-bc
+test-step-add-b→*d = step—→ test-prog-add stateb statec stated tb tc test-step-add-bc test-step-add-c→*d
 
 -- 'SUB' test
 test-prog-sub : Program 1

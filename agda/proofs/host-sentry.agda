@@ -12,23 +12,33 @@ open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Nat.Properties using (≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; _≥?_)
 open import Function.Base using (flip)
 open import Data.Product using (∃; ∃-syntax; _×_; _,_; Σ)
+open import Data.Bool using (Bool; true; false; if_then_else_)
 
+z = ℕ.zero
+y =  (# 0)
+-- r = Fin.zero
 
--- ask how to write this proof.
-
-
-prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ sₛ' : State}
-    → (sₕ .Hstate.pc  ≡ sₛ .State.pc) × (sₕ .Hstate.registers  ≡ sₛ .State.registers)
-    → t , p , sₛ —→ sₛ'
-    → p , sₕ —→* sₕ' , t
-    → (sₕ' .Hstate.pc  ≡ sₛ' .State.pc) × (sₕ' .Hstate.registers  ≡ sₛ' .State.registers)
-
-    -- → ∃[ sₕ' ] {! (p , sₕ —→* sₕ')  !}       -- → (sₕ' .State.pc  ≡ sₛ' .State.pc) × (sₕ' .State.registers  ≡ sₛ' .State.registers)
-
-    -- → ∃ sₛ ((p , sₛ —→ sₛ) × ((sₛ .State.pc ≡ sₕ .State.pc) × (sₛ .State.registers ≡ sₕ .State.registers)))
-
+prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ : State}
+    → (sₕ .Hstate.mode ≡ true)
+    → (sₕ .Hstate.pc  ≡ sₛ .State.pc)
+    → (sₕ .Hstate.registers  ≡ sₛ .State.registers)
+    → p , sₕ —→ sₕ' , t
+    → ∃[ sₛ' ] (t , p , sₛ —→ sₛ') × (sₕ' .Hstate.pc  ≡ sₛ' .State.pc) × (sₕ' .Hstate.registers  ≡ sₛ' .State.registers)
+    
     -- there exists a step such that the host ends up in state where the pc and registers are equivalent
--- how to write?? ∃ sₛ' ((p , sₛ —→ sₛ') × (sₕ' .State.pc  ≡ sₛ' .State.pc) (sₕ' .State.registers  ≡ sₛ' .State.registers) )
 
 
-prf = λ samestates₁ sentrystep hoststeps → {!  !} , {!   !}
+-- (mode)(pc) (reg)        (p , sₕ —→ sₕ' , t )                               (sₛ')        
+prf refl refl refl (step-NoOp p [[ pc , registers , _ ]] prf₁ cmd-prf) = [ pc , registers ] , (step-NoOp ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ p [ pc , registers ] prf₁ cmd-prf) , (refl , refl)
+prf refl refl refl (step-Add p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Add ⟨ (Add y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Sub p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] ,  step-Sub ⟨ (Sub y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Addi p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Addi ⟨ (Add y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Jump p [[ pc , registers , _ ]] prf₁ prf2 cmd-prf ) = [ {! jmp-pc !} , registers ] , {! Jump !} , {!   !} , refl
+-- get jmp-pc into scope?
+
+-- prf refl refl refl (step-Bgtz-l p [[ pc , registers , _ ]] prf₁ prf2 prf3 cmd-prf) = [ suc (pc) , registers ] , step-Bgtz-l ⟨ (Bgtz {!   !} {!   !}) , {!   !} ⟩ p [ pc , registers ] prf₁ {!   !} {!  !} {!   !} , ({!   !} , refl)
+-- prf refl refl refl (step-Bgtz-g _ _ prf₁ prf2 prf3 cmd-prf) = {!   !}
+-- prf refl refl refl (step-Enable _ _ prf₁ cmd-prf) = {!   !}
+-- prf refl refl refl (step-Disable _ _ prf₁ cmd-prf) = {!   !}
+prf refl refl refl _ = {!   !}
+   

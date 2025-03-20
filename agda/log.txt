@@ -1,10 +1,34 @@
 find . -type f -name "*.agdai" -exec rm -f {} +
+
+week 11
+[] trusted/untrusted
+[] host-sentry in-step proof
+[] 
+
+
+
 week 10
+[] will there be issues with list and vector?
+
 [] toss in more stuff?
 [] how to prove host-sentry are in step 
     - test cases  
     - probably compare to other machine (python sim) ?
-[] determinism proof - Brian?
+    - Beard ∀
+[x] determinism proof - Brian? n > 1 & n = 0 
+[] test python simulator on untrusted 
+  - fn call so preserve host registers (any vals would go in memory which in untrusted),
+   and then upon return to trusted mode restore registers so it will be in the same state as sentry
+
+[] toss in trusted/untrusted modes and logic into python & agda
+    - if untrusted, -> treat as fn call
+                       sentry: trace = (pc+2)
+                       host: jmp to untrusted code. 
+
+    - if trsuted , ->  sentry: trace = (pc+1)
+[] loads - how do we determine if it is a `load` or `load.unt` in host
+[] when trace is empty (non-trusted mode), should we increment pc? states will be off during these points, but if not, upon return pc's would be different. unlike fn calls, host does not save pc? or does it (and the registers beforehand)?
+
 
 week nine
 [-] prove determinism

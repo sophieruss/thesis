@@ -31,10 +31,10 @@ state1 = [ 1 , r32-1 ]
 state2 = [ 2 , r32-2 ]
 state3 = [ 3 , r32-3 ]
 
-state0_ = [ 0 , r32-0 , true ]
-state1_ = [ 1 , r32-1 , true ]
-state2_ = [ 2 , r32-2 , true ]
-state3_ = [ 3 , r32-3 , true ]
+state0_ = [[ 0 , r32-0 , true ]]
+state1_ = [[ 1 , r32-1 , true ]]
+state2_ = [[ 2 , r32-2 , true ]]
+state3_ = [[ 3 , r32-3 , true ]]
 
 -- trace   instruction      r1val  r2val  sum
 t0 = ⟨ Add (# 2) (# 1) (# 0) , 1 ∷ 1 ∷ 2 ∷ [] ⟩

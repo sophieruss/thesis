@@ -1,0 +1,15 @@
+Lw_T 0 0
+Addi 1 0 1
+Addi 2 1 0
+Disable
+Jump 12
+Enable
+Add 3 2 1
+Add 4 3 2
+Add 5 4 3
+
+
+Addi 4 0 25
+Addi 1 0 5
+Add 0 0 1
+Jump 5

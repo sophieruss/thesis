@@ -1,4 +1,4 @@
-module agda.host where
+module agda.host-unt where
 
 open import agda.commands hiding (State)
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
@@ -10,12 +10,13 @@ open import Data.Bool using (Bool; true; false; if_then_else_)
 
 
 record State : Set where
-  constructor [[_,_,_]]
+  constructor [[_,_,_,_]]
   field
     pc : ℕ
     registers : Vec ℕ 32
     mode : Bool -- 1 trusted
-   
+    savedReg : (Vec ℕ 32)
+
 
 infix 4 _,_—→_,_
 data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
@@ -24,7 +25,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
   step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
-    p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode ]] , ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode , (s .State.savedReg) ]] , ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
   
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
@@ -38,7 +39,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
             then ⟨ Add dest r1 r2 , r1_val ∷ r2_val ∷ sum ∷ [] ⟩ 
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
     
-    in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode ]] , t
+    in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode , (s .State.savedReg) ]] , t
     
 
 
@@ -54,7 +55,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
             then ⟨ Sub dest r1 r2 , r1_val ∷ r2_val ∷ dif ∷ [] ⟩ 
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
     
-    in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode ]] , t
+    in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode , (s .State.savedReg) ]] , t
       
 
   step-Addi :  ∀ {n} → {dest r1 : Fin 32} → {temp : ℕ}  → (p : Program n) → (s : State) →
@@ -68,14 +69,14 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
             then ⟨ Addi dest r1 temp , r1_val ∷ sum ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
             
-    in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode ]] , t
+    in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode , (s .State.savedReg) ]] , t
 
   step-Jump : ∀ {n jmp-pc} → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (prf2 : jmp-pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Jump jmp-pc)) →
 
-    let newstate = [[ jmp-pc , (s .State.registers) , s .State.mode ]]
+    let newstate = [[ jmp-pc , (s .State.registers) , s .State.mode , (s .State.savedReg) ]]
         t = if (s .State.mode ) 
             then ⟨ Jump jmp-pc , jmp-pc ∷  0 ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
@@ -88,7 +89,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf3 : (lookup (s .State.registers) src) ≡ 0 ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
 
-    let newstate = [[ (suc (s .State.pc)) , (s .State.registers) , s .State.mode ]]
+    let newstate = [[ (suc (s .State.pc)) , (s .State.registers) , s .State.mode , (s .State.savedReg) ]]
         t = if (s .State.mode ) 
             then ⟨ Bgtz src bgtz-pc , lookup (s .State.registers) src ∷  suc (s .State.pc) ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
@@ -101,7 +102,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf3 : (lookup (s .State.registers) src) > 0 ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
 
-    let newstate = [[ bgtz-pc , (s .State.registers) , s .State.mode ]]
+    let newstate = [[ bgtz-pc , (s .State.registers) , s .State.mode , (s .State.savedReg) ]]
         t = if (s .State.mode ) 
             then ⟨ Bgtz src bgtz-pc , lookup (s .State.registers) src ∷ bgtz-pc ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
@@ -111,12 +112,14 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
   step-Enable : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Enable) →
-    p , s —→ [[ (suc (s .State.pc)) , (s .State.registers) , s .State.mode ]] , ⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    -- Restore registers
+    p , s —→ [[ (suc (s .State.pc)) , (s .State.savedReg) , s .State.mode , (s .State.savedReg) ]] , ⟨ Enable , 0 ∷ 0 ∷ 0 ∷ [] ⟩
 
   step-Disable : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Disable) →
-    p , s —→ [[ (suc (s .State.pc)) , (s .State.registers) , s .State.mode ]] , ⟨ Disable , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    -- Save registers
+    p , s —→ [[ (suc (s .State.pc)) , (s .State.registers) , s .State.mode , (s .State.registers) ]] , ⟨ Disable , 0 ∷ 0 ∷ 0 ∷ [] ⟩
   
 
 
@@ -131,4 +134,4 @@ data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set
 
 
 
- 
+  
