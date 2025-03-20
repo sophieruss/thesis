@@ -7,8 +7,8 @@ Enable
 Add 3 2 1
 Add 4 3 2
 Add 5 4 3
-
-
+NoOp
+NoOp
 Addi 4 0 25
 Addi 1 0 5
 Add 0 0 1
