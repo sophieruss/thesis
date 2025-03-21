@@ -16,7 +16,6 @@ open import Data.Bool using (Bool; true; false; if_then_else_)
 
 z = ℕ.zero
 y =  (# 0)
--- r = Fin.zero
 
 prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ : State}
     → (sₕ .Hstate.mode ≡ true)
@@ -30,7 +29,7 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ : State}
 
 -- (mode)(pc) (reg)        (p , sₕ —→ sₕ' , t )                               (sₛ')        
 prf refl refl refl (step-NoOp p [[ pc , registers , _ ]] prf₁ cmd-prf) = [ pc , registers ] , (step-NoOp ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ p [ pc , registers ] prf₁ cmd-prf) , (refl , refl)
-prf refl refl refl (step-Add p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Add ⟨ (Add y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Add p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Add ⟨ (Add {!   !} y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
 prf refl refl refl (step-Sub p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] ,  step-Sub ⟨ (Sub y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
 prf refl refl refl (step-Addi p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Addi ⟨ (Add y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
 prf refl refl refl (step-Jump p [[ pc , registers , _ ]] prf₁ prf2 cmd-prf ) = [ {! jmp-pc !} , registers ] , {! Jump !} , {!   !} , refl
