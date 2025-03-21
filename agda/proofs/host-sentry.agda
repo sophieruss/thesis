@@ -29,11 +29,10 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ : State}
 
 -- (mode)(pc) (reg)        (p , sₕ —→ sₕ' , t )                               (sₛ')        
 prf refl refl refl (step-NoOp p [[ pc , registers , _ ]] prf₁ cmd-prf) = [ pc , registers ] , (step-NoOp ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ p [ pc , registers ] prf₁ cmd-prf) , (refl , refl)
-prf refl refl refl (step-Add p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Add ⟨ (Add {!   !} y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
-prf refl refl refl (step-Sub p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] ,  step-Sub ⟨ (Sub y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
-prf refl refl refl (step-Addi p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Addi ⟨ (Add y y y ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
-prf refl refl refl (step-Jump p [[ pc , registers , _ ]] prf₁ prf2 cmd-prf ) = [ {! jmp-pc !} , registers ] , {! Jump !} , {!   !} , refl
--- get jmp-pc into scope?
+prf refl refl refl (step-Add {n} {dest} {r1} {r2} p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Add ⟨ (Add dest r1 r2 ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Sub {n} {dest} {r1} {r2} p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] ,  step-Sub ⟨ (Sub dest r1 r2 ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Addi {n} {dest} {r1} {tmp} p [[ pc , registers , _ ]] prf₁ cmd-prf ) = [ suc (pc) , _ ] , step-Addi ⟨ (Addi dest r1 tmp ) , z ∷ ( z ∷ ( z ∷ [])) ⟩ p [ pc , registers ] prf₁ cmd-prf , (refl , refl)
+prf refl refl refl (step-Jump {n} {jmp-pc} p [[ pc , registers , _ ]] prf₁ prf2 cmd-prf ) = [ jmp-pc , registers ] , step-Jump ⟨ (Jump jmp-pc) , _ ⟩ _ _ prf₁ prf2 cmd-prf , refl , refl
 
 -- prf refl refl refl (step-Bgtz-l p [[ pc , registers , _ ]] prf₁ prf2 prf3 cmd-prf) = [ suc (pc) , registers ] , step-Bgtz-l ⟨ (Bgtz {!   !} {!   !}) , {!   !} ⟩ p [ pc , registers ] prf₁ {!   !} {!  !} {!   !} , ({!   !} , refl)
 -- prf refl refl refl (step-Bgtz-g _ _ prf₁ prf2 prf3 cmd-prf) = {!   !}
