@@ -9,6 +9,11 @@ open import Data.List.Base using (List)
 
 infix 4 _,_,_—→_
 data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set where
+
+  step-NoOp : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
+    t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
    
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
@@ -69,24 +74,31 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     t , p , s —→ [ bgtz-pc , (s .State.registers) ]
 
 
-  step-Enable : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+  step-Call-Unt-Sentry : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
     (prf : s .State.pc < n) → 
-    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Enable) →
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Call-Unt-Sentry) →
     t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
     -- pc + 1
+    -- TODO: I do not need to send/check where the jmp-pc goes. 
+    -- Should I have two notions call-unt. 
+    -- If I default to 0, will things break
 
-  step-Disable : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
-    (prf : s .State.pc < n) → 
-    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Disable) →
-    t , p , s —→ [ (suc (suc (s .State.pc))) , (s .State.registers) ] 
-    -- pc + 2 
-  
-  step-NoOp : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
-    (prf : s .State.pc < n) → 
-    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
-    t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
-  
+  -- will never go here becuase this would be a NoOp, since starts as untrusted 
+  -- step-Ret-Unt : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+  --   (prf : s .State.pc < n) → 
+  --   (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Return-Unt) →
+  --   t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
+  --   -- pc + 1
 
+  step-Return : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Return) →
+    t , p , s —→ s
+
+  step-Alert : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    (prf : s .State.pc < n) → 
+    (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Alert) →
+    t , p , s —→ s  
 
     
 infix 4 _,_,_—→*_

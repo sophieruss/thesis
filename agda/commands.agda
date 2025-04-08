@@ -14,6 +14,11 @@ data Instruction : Set where
   Bgtz  : Fin 32 → ℕ → Instruction
   Enable : Instruction
   Disable : Instruction
+  Call-Unt : ℕ → Instruction 
+  Call-Unt-Sentry : Instruction 
+  Return-Unt : Instruction
+  Return : Instruction
+  Alert : Instruction
 
   Empty : Instruction
 

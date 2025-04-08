@@ -1,5 +1,7 @@
 module agda.proofs.deterministic where
 
+-- TODO: this is only valid for generic steps. has not been specified for host/agda. 
+
 open import agda.commands
 open import agda.steps
 open import Data.Nat using (ℕ; compare; _≤_; _≥_;  _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )

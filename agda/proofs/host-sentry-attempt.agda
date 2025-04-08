@@ -1,5 +1,7 @@
 module agda.proofs.host-sentry where
 
+-- TODO: archive of host-sentry.agda
+
 open import agda.commands
 open import agda.host renaming (State to Hstate)
 open import agda.sentry
@@ -27,8 +29,8 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ : State}
     -- there exists a step such that the host ends up in state where the pc and registers are equivalent
 
        
-prf refl refl (done p [[ pc , registers , mode ]]) = [ pc , registers ] , {!   !} , refl , refl
-prf refl refl (step—→ p [[ pc , registers , mode ]] sₕ _ t _ x (step-NoOp .p ([[ .pc , .registers , .mode ]]) prf₁ cmd-prf)) = [ pc , registers ] , step-NoOp _ _ _ prf₁ cmd-prf , {!   !} , {!   !}
+prf refl refl (done p [[ pc , registers , mode , _ , _ , _ ]]) = [ pc , registers ] , step-NoOp ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩ p _ {!   !} {!   !} , refl , refl
+prf refl refl (step—→ p [[ pc , registers , mode , _ , _ , _ ]] sₕ _ t _ x (step-NoOp .p ([[ .pc , .registers , .mode , _ , _ , _ ]]) prf₁ cmd-prf)) = [ pc , registers ] , step-NoOp _ _ _ prf₁ cmd-prf , {!   !} , {!   !}
 
 prf _ _ _ = {!   !}
 
