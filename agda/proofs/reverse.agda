@@ -1,6 +1,6 @@
 module agda.proofs.reverse where
 
--- apr 6, 2024. try reversing host and sentry 
+-- try reversing host and sentry 
 
 open import agda.commands
 open import agda.host renaming (State to Hstate)
@@ -29,8 +29,11 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ : Hstate} {sₛ sₛ' : State}
     → ∃[ sₕ' ] (p , sₕ —→ sₕ' , t) × (equiv sₕ' sₛ')
 
 -- How to determine UR, ST, ret-pc? 
-prf refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf) = [[ pc , reg , true , _ , _ , _ ]] , ({! agda.host._,_—→_,_.step-NoOp  !} , refl , refl)
+-- how to fill in proof
+prf {n} {p} {⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf) = [[ pc , reg , true ,   Hstate.UR h    , Hstate.SR h , Hstate.ret-pc h  ]] , (step-NoOp {!   !} {!   !} {!   !} {!   !} , refl , refl)
 prf refl (refl , refl) _ = {!   !}
+
+
 -- prf refl (refl , refl) (step-Add t _ _ prf₁ cmd-prf) = {!   !}
 -- prf refl (refl , refl) (step-Sub t _ _ prf₁ cmd-prf) = {!   !}
 -- prf refl (refl , refl) (step-Addi t _ _ prf₁ cmd-prf) = {!   !}
@@ -39,6 +42,4 @@ prf refl (refl , refl) _ = {!   !}
 -- prf refl (refl , refl) (step-Bgtz-g _ _ _ prf₁ prf2 prf3 cmd-prf) = {!   !}
 -- prf refl (refl , refl) (step-Call-Unt-Sentry _ _ _ prf₁ cmd-prf) = {!   !}
 -- prf refl (refl , refl) (step-Return _ _ _ prf₁ cmd-prf) = {!   !}
--- prf refl (refl , refl) (step-Alert _ _ _ prf₁ cmd-prf) = {!   !}
-
--- prf refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf) = [[ pc , reg , true , _ , _ , _ ]] , step—→ p [[ pc , reg , true , _ , _ , _ ]] [[ pc , reg , true , z , zz , z ]] [[ pc , reg , true , z , zz , z ]] ⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩ _ {!  done !} {!  step-NoOp !} , (refl , refl)
+-- prf refl (refl , refl) (step-Alert _ _ _ prf₁ cmd-prf) = {!   !} 

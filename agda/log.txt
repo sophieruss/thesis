@@ -98,3 +98,8 @@ week six
     -- ? depends on the step though, for now, yes.
   [+] vector of instructions
   [+] instructions bessides no-op
+
+
+spring
+week two
+-- agda has dependent types, haskel doesnt in thesis

@@ -160,13 +160,20 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
 
 infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
-    done : ∀ {n} → ∀ (p : Program n) → (s : State) 
-      → p , s —→* s , emptyTrace -- Is there a way to ignore trace?
+    done : ∀ {n} → ∀ (p : Program n) → (s : State) → (t : Trace)
+      → p , s —→* s , t -- Is there a way to ignore trace?
     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
       → p , s₁ —→* s₂ , t₂
       → p , s —→ s₁ , t₁
       → p , s —→* s₂ , t₂
 
-
+-- infix 4 _,_—→*_
+-- data _,_—→*_ : ∀ {n} → Program n → State → State → Set where
+--     done : ∀ {n} → ∀ (p : Program n) → (s : State) 
+--       → p , s —→* s  -- Is there a way to ignore trace?
+--     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ : Trace)
+--       → p , s₁ —→* s₂
+--       → p , s —→ s₁ , t₁
+--       → p , s —→* s₂
 
  
