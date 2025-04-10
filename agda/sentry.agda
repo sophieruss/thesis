@@ -13,12 +13,14 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
   step-NoOp : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ NoOp) →
+    (trace-prf : t ≡ ⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩) →
     t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
    
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Add dest r1 r2)) →
-      
+    (trace-prf : t .Trace.instr ≡ Add dest r1 r2) →
+
     let r1_val = lookup (s .State.registers) r1
         r2_val = lookup (s .State.registers) r2
         sum = r1_val + r2_val
@@ -31,6 +33,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
   step-Sub :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Sub dest r1 r2)) →
+    (trace-prf : t .Trace.instr ≡ Sub dest r1 r2) →
 
     let r1_val = lookup (s .State.registers) r1
         r2_val = lookup (s .State.registers) r2
@@ -44,6 +47,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
   step-Addi :  ∀ {n} → {dest r1 : Fin 32} → {temp : ℕ} → (t : Trace) → (p : Program n) → (s : State) →
     (prf : s .State.pc < n ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< {s .State.pc} {n} prf)) ≡ (Addi dest r1 temp)) →
+    (trace-prf : t .Trace.instr ≡ Addi dest r1 temp) →
 
     let r1_val = lookup (s .State.registers) r1
         sum = r1_val + temp
@@ -52,31 +56,39 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     
     in t , p , s —→ [ (suc (s .State.pc)) , r ]
 
-  step-Jump : ∀ {n jmp-pc} → (t : Trace) → (p : Program n) → (s : State) →                         
+  step-Jump : ∀ {n jmp-pc x₁ x₂} → (t : Trace) → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (prf2 : jmp-pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Jump jmp-pc)) →
+    (trace-prf : t ≡ ⟨ Jump x₁ , x₂ ∷ 0 ∷ 0 ∷ [] ⟩) →
+
     t , p , s —→ [ jmp-pc , (s .State.registers) ]
   
-  step-Bgtz-l : ∀ {n bgtz-pc} → {src : Fin 32} → (t : Trace) →  (p : Program n) → (s : State) →                         
+  step-Bgtz-l : ∀ {n bgtz-pc x₁ x₂} → {src : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (prf2 : bgtz-pc < n) → 
     (prf3 : (lookup (s .State.registers) src) ≡ 0 ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
+    (trace-prf : t ≡ ⟨ Bgtz src bgtz-pc , x₁ ∷ x₂ ∷ 0 ∷ [] ⟩) →
+
     t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
     
 
-  step-Bgtz-g : ∀ {n bgtz-pc} → {src : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                         
+  step-Bgtz-g : ∀ {n bgtz-pc x₁ x₂} → {src : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                         
     (prf : s .State.pc < n) → 
     (prf2 : bgtz-pc < n) → 
     (prf3 : (lookup (s .State.registers) src) > 0 ) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ (Bgtz src bgtz-pc)) →
+    (trace-prf : t ≡ ⟨ Bgtz src bgtz-pc , x₁ ∷ x₂ ∷ 0 ∷ [] ⟩) →
+
     t , p , s —→ [ bgtz-pc , (s .State.registers) ]
 
 
   step-Call-Unt-Sentry : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Call-Unt-Sentry) →
+    (trace-prf : t .Trace.instr ≡ Call-Unt-Sentry) →
+
     t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
     -- pc + 1
     -- TODO: I do not need to send/check where the jmp-pc goes. 
@@ -93,11 +105,15 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
   step-Return : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Return) →
+    (trace-prf : t ≡ ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+
     t , p , s —→ s
 
   step-Alert : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
     (prf : s .State.pc < n) → 
     (cmd-prf : (lookup (p .Program.instructions) (fromℕ< prf)) ≡ Alert) →
+    (trace-prf : t ≡ ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+
     t , p , s —→ s  
 
     
@@ -111,3 +127,4 @@ data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set
       → t , p , s —→* s₂
 
 
+ 

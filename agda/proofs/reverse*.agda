@@ -33,7 +33,7 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ : Hstate} {sₛ sₛ' : State}
 -- What assumptions am I making about the trace?
 -- How can I check it? I think I am assuming I trust trace. Thus don't check?
 
-prf {n} {p} {⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf)   
+prf {n} {p} {⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf trace-prf)   
         = [[ pc , reg , true , _ , _ , _ ]] , 
         step—→ p h
         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
@@ -42,7 +42,7 @@ prf {n} {p} {⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl
         (step-NoOp p h prf₁ cmd-prf) , 
         (refl , refl)
 
-prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Add _ p [ pc , reg ] prf₁ cmd-prf)                            
+prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Add _ p [ pc , reg ] prf₁ cmd-prf trace-prf)                            
         = [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h
         [[ suc pc , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _ 
@@ -51,7 +51,7 @@ prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Add _ p [ pc , reg ] prf�
         (step-Add p _ prf₁ cmd-prf) , 
         (refl , refl)
 
-prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Sub _ p [ pc , reg ] prf₁ cmd-prf)                            
+prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Sub _ p [ pc , reg ] prf₁ cmd-prf trace-prf)                            
         = [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h
         [[ suc pc , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
@@ -60,7 +60,7 @@ prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Sub _ p [ pc , reg ] prf�
         (step-Sub p _ prf₁ cmd-prf) , 
         (refl , refl)
 
-prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Addi _ p [ pc , reg ] prf₁ cmd-prf)                           
+prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Addi _ p [ pc , reg ] prf₁ cmd-prf trace-prf)                           
         = [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h
         [[ suc pc , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _        
@@ -69,7 +69,7 @@ prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Addi _ p [ pc , reg ] prf�
         (step-Addi p _ prf₁ cmd-prf) , 
         (refl , refl)
 
-prf {n} {p} {⟨ Jump _ , _ ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Jump {n} {jmp-pc} _ p [ pc , reg ] prf₁ prf2 cmd-prf) 
+prf {n} {p} {⟨ Jump _ , _ ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Jump {n} {jmp-pc} _ p [ pc , reg ] prf₁ prf2 cmd-prf trace-prf) 
         = [[ jmp-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ jmp-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
@@ -78,16 +78,16 @@ prf {n} {p} {⟨ Jump _ , _ ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , re
         (step-Jump p _ prf₁ prf2 cmd-prf) , 
         (refl , refl)
 
-prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-l {n} {bgtz-pc} {src} _ p [ pc , reg ] prf₁ prf2 prf3 cmd-prf) 
+prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-l {n} {bgtz-pc} {x₁} {x₂} {src} _ p [ pc , reg ] prf₁ prf2 prf3 cmd-prf trace-prf) 
         = [[ (suc (pc)) , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ (suc (pc)) , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _ 
         ⟨ Bgtz src bgtz-pc , lookup (reg) src ∷ suc pc ∷ 0 ∷ [] ⟩ _ 
         (done p _ _) 
-        {! step-Bgtz-g!} ,
+        (step-Bgtz-l p _ prf₁ prf2 prf3 cmd-prf) ,
         (refl , refl)
 
-prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-g {n} {bgtz-pc} {src} _ p [ pc , reg ] prf₁ prf2 prf3 cmd-prf) 
+prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-g {n} {bgtz-pc} {x₁} {x₂} {src} _ p [ pc , reg ] prf₁ prf2 prf3 cmd-prf trace-prf) 
         = [[ bgtz-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         _ _ 
@@ -96,7 +96,7 @@ prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , 
         (step-Bgtz-g p _ prf₁ prf2 prf3 cmd-prf) ,
         (refl , refl)
 
-prf {n} {p} {⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Return _ p [ pc , reg ] prf₁ cmd-prf)  
+prf {n} {p} {⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Return _ p [ pc , reg ] prf₁ cmd-prf trace-prf)  
         = [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
@@ -105,7 +105,7 @@ prf {n} {p} {⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , re
         (step-Return p h prf₁ cmd-prf) , 
         (refl , refl)  
 
-prf {n} {p} {⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Alert _ p [ pc , reg ] prf₁ cmd-prf)  
+prf {n} {p} {⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Alert _ p [ pc , reg ] prf₁ cmd-prf trace-prf)  
         = [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
@@ -115,19 +115,27 @@ prf {n} {p} {⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , ref
         (refl , refl) 
 
 
+prf refl (refl , refl) (step-Call-Unt-Sentry _ _ _ prf₁ cmd-prf trace-prf) = {!   !}
 
-prf refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf) = {!   !}
-prf refl (refl , refl) (step-Jump _ _ _ prf₁ prf2 cmd-prf) = {!   !}
-prf refl (fst , snd) (step-Bgtz-l _ _ _ prf₁ prf2 prf3 cmd-prf) = {!   !}
-prf refl (refl , refl) (step-Bgtz-g _ _ _ prf₁ prf2 prf3 cmd-prf) = {!   !}
-prf refl (fst , snd) (step-Call-Unt-Sentry _ _ _ prf₁ cmd-prf) = {!   !}
-prf refl (fst , snd) (step-Return _ _ _ prf₁ cmd-prf) = {!   !}
-prf refl (fst , snd) (step-Alert _ _ _ prf₁ cmd-prf) = {!   !} 
--- prf {n} {p} {⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf)   
---         = [[ pc , reg , true , _ , _ , _ ]] , 
---         step—→ p h
---         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
---         ⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩ _ 
---         (done p h ⟨ NoOp , zero ∷ zero ∷ zero ∷ [] ⟩) 
---         (step-NoOp p h prf₁ cmd-prf) , 
---         (refl , refl)
+
+
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Jump .(⟨ NoOp , args ⟩) .p .s prf₁ prf2 cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-l .(⟨ NoOp , args ⟩) .p .s prf₁ prf2 prf3 cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-g .(⟨ NoOp , args ⟩) .p .s prf₁ prf2 prf3 cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Call-Unt-Sentry .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Return .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Alert .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
+-- prf {n} {p} {⟨ Add x x₁ x₂ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Sub x x₁ x₂ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Addi x x₁ x₂ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Jump x , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Bgtz x x₁ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Enable , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Disable , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Call-Unt x , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Call-Unt-Sentry , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Return-Unt , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Return , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Alert , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
+-- prf {n} {p} {⟨ Empty , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}  
