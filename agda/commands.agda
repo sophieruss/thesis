@@ -19,6 +19,8 @@ data Instruction : Set where
   Return-Unt : Instruction
   Return : Instruction
   Alert : Instruction
+  Load-UR : Fin 32 → Instruction
+  Load-UR-Sentry : Fin 32 →  ℕ → Instruction
 
   Empty : Instruction
 

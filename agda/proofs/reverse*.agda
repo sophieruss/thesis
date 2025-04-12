@@ -33,109 +33,119 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ : Hstate} {sₛ sₛ' : State}
 -- What assumptions am I making about the trace?
 -- How can I check it? I think I am assuming I trust trace. Thus don't check?
 
-prf {n} {p} {⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp _ p [ pc , reg ] prf₁ cmd-prf trace-prf)   
-        = [[ pc , reg , true , _ , _ , _ ]] , 
+prf {n} {p} {⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-NoOp _ p [ pc , reg ] prf-cur prf-cmd prf-trace prf-canStep)   
+        = 
+        [[ pc , reg , true , _ , _ , _ ]] , 
         step—→ p h
         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
         ⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩ _ 
         (done p h ⟨ NoOp , zero ∷ zero ∷ zero ∷ [] ⟩) 
-        (step-NoOp p h prf₁ cmd-prf) , 
+        (step-NoOp p h prf-cur prf-cmd prf-canStep) , 
         (refl , refl)
 
-prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Add _ p [ pc , reg ] prf₁ cmd-prf trace-prf)                            
-        = [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) 
+        (step-Add _ p [ pc , reg ] prf-cur prf-cmd prf-trace prf-canStep)                            
+        = 
+        [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h
         [[ suc pc , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _ 
         t t 
         (done p _ _) 
-        (step-Add p _ prf₁ cmd-prf) , 
+        (step-Add p _ prf-cur prf-cmd prf-canStep) , 
         (refl , refl)
 
-prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Sub _ p [ pc , reg ] prf₁ cmd-prf trace-prf)                            
-        = [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) 
+        (step-Sub _ p [ pc , reg ] prf-cur prf-cmd prf-trace prf-canStep)                            
+        =
+        [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h
         [[ suc pc , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
         t t 
         (done p _ _) 
-        (step-Sub p _ prf₁ cmd-prf) , 
+        (step-Sub p _ prf-cur prf-cmd prf-canStep) , 
         (refl , refl)
 
-prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) (step-Addi _ p [ pc , reg ] prf₁ cmd-prf trace-prf)                           
-        = [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {t} {h} {s} {s'} refl (refl , refl) 
+        (step-Addi _ p [ pc , reg ] prf-cur prf-cmd prf-trace prf-canStep)                           
+        =
+        [[ (suc (pc)) , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h
         [[ suc pc , State.registers s' , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _        
         t t 
         (done p _ _) 
-        (step-Addi p _ prf₁ cmd-prf) , 
+        (step-Addi p _ prf-cur prf-cmd prf-canStep) , 
         (refl , refl)
 
-prf {n} {p} {⟨ Jump _ , _ ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Jump {n} {jmp-pc} _ p [ pc , reg ] prf₁ prf2 cmd-prf trace-prf) 
-        = [[ jmp-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {⟨ Jump _ , _ ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-Jump {n} {jmp-pc} _ p [ pc , reg ] prf-cur prf-canStep prf-cmd prf-trace ) 
+        = 
+        [[ jmp-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ jmp-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
         ⟨ Jump jmp-pc , jmp-pc ∷ 0 ∷ 0 ∷ [] ⟩ _ 
         (done p _ _) 
-        (step-Jump p _ prf₁ prf2 cmd-prf) , 
+        (step-Jump p _ prf-cur prf-canStep prf-cmd) , 
         (refl , refl)
 
-prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-l {n} {bgtz-pc} {x₁} {x₂} {src} _ p [ pc , reg ] prf₁ prf2 prf3 cmd-prf trace-prf) 
-        = [[ (suc (pc)) , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-Bgtz-l {n} {bgtz-pc} {x₁} {x₂} {src} _ p [ pc , reg ] prf-cur prf-zero prf-cmd prf-trace prf-canStep) 
+        = 
+        [[ (suc (pc)) , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ (suc (pc)) , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _ 
         ⟨ Bgtz src bgtz-pc , lookup (reg) src ∷ suc pc ∷ 0 ∷ [] ⟩ _ 
         (done p _ _) 
-        (step-Bgtz-l p _ prf₁ prf2 prf3 cmd-prf) ,
+        (step-Bgtz-l p _ prf-cur prf-zero prf-cmd prf-canStep) ,         --[[ pc , reg , true , UR , SR , ret-pc ]] —→ [[ suc pc , reg , true , UR , SR , ret-pc ]]
         (refl , refl)
 
-prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-g {n} {bgtz-pc} {x₁} {x₂} {src} _ p [ pc , reg ] prf₁ prf2 prf3 cmd-prf trace-prf) 
-        = [[ bgtz-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {⟨ Bgtz _ _ , _ ∷ _ ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-Bgtz-g {n} {bgtz-pc} {x₁} {x₂} {src} _ p [ pc , reg ] prf-cur prf-canStep prf-gzero prf-cmd prf-trace) 
+        = 
+        [[ bgtz-pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         _ _ 
         ⟨ Bgtz src bgtz-pc , lookup (reg) src ∷ bgtz-pc ∷ 0 ∷ [] ⟩ _
         (done p _ _) 
-        (step-Bgtz-g p _ prf₁ prf2 prf3 cmd-prf) ,
+        (step-Bgtz-g p _ prf-cur prf-gzero prf-cmd prf-canStep) ,         --[[ pc , reg , true , UR , SR , ret-pc ]] —→ [[ suc pc , reg , true , UR , SR , ret-pc ]]
         (refl , refl)
 
-prf {n} {p} {⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Return _ p [ pc , reg ] prf₁ cmd-prf trace-prf)  
-        = [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-Return _ p [ pc , reg ] prf-cur prf-cmd prf-trace)  
+        = 
+        [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
         ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ 
         (done p _ _) 
-        (step-Return p h prf₁ cmd-prf) , 
+        (step-Return p h prf-cur prf-cmd) , 
         (refl , refl)  
 
-prf {n} {p} {⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) (step-Alert _ p [ pc , reg ] prf₁ cmd-prf trace-prf)  
-        = [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+prf {n} {p} {⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-Alert _ p [ pc , reg ] prf-cur prf-cmd prf-trace)  
+        = 
+        [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
         step—→ p h 
         [[ pc , reg , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
         ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ 
         (done p _ _) 
-        (step-Alert p h prf₁ cmd-prf) , 
+        (step-Alert p h prf-cur prf-cmd) , 
         (refl , refl) 
 
-
-prf refl (refl , refl) (step-Call-Unt-Sentry _ _ _ prf₁ cmd-prf trace-prf) = {!   !}
-
-
-
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-NoOp .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Jump .(⟨ NoOp , args ⟩) .p .s prf₁ prf2 cmd-prf) = {!   !}
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-l .(⟨ NoOp , args ⟩) .p .s prf₁ prf2 prf3 cmd-prf) = {!   !}
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Bgtz-g .(⟨ NoOp , args ⟩) .p .s prf₁ prf2 prf3 cmd-prf) = {!   !}
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Call-Unt-Sentry .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Return .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
--- prf {n} {p} {⟨ NoOp , args ⟩} {h} {s} {s'} refl (refl , refl) (step-Alert .(⟨ NoOp , args ⟩) .p .s prf₁ cmd-prf) = {!   !}
--- prf {n} {p} {⟨ Add x x₁ x₂ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Sub x x₁ x₂ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Addi x x₁ x₂ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Jump x , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Bgtz x x₁ , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Enable , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Disable , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Call-Unt x , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Call-Unt-Sentry , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Return-Unt , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Return , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Alert , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}
--- prf {n} {p} {⟨ Empty , args ⟩} {h} {s} {s'} refl (refl , refl) c = {!   !}  
+-- just proves that theres a way to get from call-unt back to a state that is the exact same, but trusted mode  & pc+1
+prf {n} {p} {⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) 
+        (step-Call-Unt-Sentry {n} {jmp-pc} _ p [ pc , reg ] prf-cur prf-canStep prf-cmd prf-canReturn prf-trace) 
+        = 
+        [[ suc pc , reg , true , Hstate.UR h , reg , suc pc ]] ,  --issue because this says that the UR is unchanged
+        step—→ p h 
+        [[ jmp-pc , reg , false , Hstate.UR h , reg , suc pc ]]   -- starte right after call-unt -- TODO: test what happens if its true?
+        [[ suc pc , reg , true , _ , _ , _ ]] -- ultimate end state
+        ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _
+        (step—→ p [[ jmp-pc , reg , false , Hstate.UR h , reg , suc pc ]] -- state right after call-unt
+         [[ suc pc , reg , true , _ , _ , _ ]]  -- state after i take 1 step
+         [[ suc pc , reg , true , _ , _ , _ ]]  -- ultimate end state
+         ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ 
+         (done _ _ _)
+                (step-Ret-Unt _ _ prf-cur refl ))                                        -- proof that [[ jmp-pc , reg , false , UR , reg , suc pc ]] —→ [[ suc pc , reg , true , UR , reg , suc pc ]]
+                (step-Call-Unt _ _ prf-cur prf-canStep refl prf-cmd prf-canReturn) ,        -- proof that 
+        refl , refl
