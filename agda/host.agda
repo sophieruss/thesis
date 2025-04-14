@@ -140,7 +140,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     -- (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt ) → --if i can prove deterministic without this line, maybe i am fine.
 
     let newstate = [[ s .State.ret-pc , s .State.SR , true , s .State.UR , s .State.SR , s .State.ret-pc ]]
-        t = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+        t = ⟨ Return-Unt (s .State.UR) , 0 ∷ 0 ∷ 0 ∷ [] ⟩
       
     in p , s —→ newstate , t
 
@@ -158,12 +158,12 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
   
   step-Load-UR : ∀ {n} → {dest : Fin 32} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
-    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
+    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest ) →
     (prf-canStep : s .State.pc < n ∸ 1 ) → 
 
     let r = updateAt (s .State.registers) dest (λ x → s .State.UR)
         t = if (s .State.mode ) 
-            then ⟨ Load-UR-Sentry dest (s .State.UR) , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+            then ⟨ Load-UR dest , 0 ∷ 0 ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
             
     in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , t

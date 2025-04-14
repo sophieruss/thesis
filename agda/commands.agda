@@ -16,11 +16,10 @@ data Instruction : Set where
   Disable : Instruction
   Call-Unt : ℕ → Instruction 
   Call-Unt-Sentry : Instruction 
-  Return-Unt : Instruction
+  Return-Unt : ℕ → Instruction
   Return : Instruction
   Alert : Instruction
   Load-UR : Fin 32 → Instruction
-  Load-UR-Sentry : Fin 32 →  ℕ → Instruction
 
   Empty : Instruction
 
@@ -30,11 +29,12 @@ record Program (n : ℕ) : Set where
     instructions : Vec Instruction n
 
 record State : Set where
-  constructor [_,_]
+  constructor [_,_,_]
   field
     pc : ℕ
     registers : Vec ℕ 32
-   
+    UR : ℕ
+  
 record Trace : Set where
   constructor ⟨_,_⟩
   field
@@ -42,4 +42,4 @@ record Trace : Set where
     args :  Vec ℕ 3
 
 emptyTrace : Trace
-emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩ 
