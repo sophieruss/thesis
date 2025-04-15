@@ -14,9 +14,9 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ NoOp) →
     (prf-trace : t ≡ ⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩) →
-    (prf-canStep : s .State.pc < n ∸ 1 ) → 
+    -- (prf-canStep : s .State.pc < n ∸ 1 ) → 
 
-    t , p , s —→ [ (s .State.pc) , (s .State.registers) , (s .State.UR) ]
+    t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
    
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
     (prf-cur : s .State.pc < n ) → 
@@ -30,7 +30,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
         r = updateAt (s .State.registers) dest (λ x → sum)
         t = ⟨ Add dest r1 r2 , r1_val ∷ r2_val ∷ sum ∷ [] ⟩
     
-    in t , p , s —→ [ (suc (s .State.pc)) , r , (s .State.UR) ] 
+    in t , p , s —→ [ (suc (s .State.pc)) , r ] 
     
 
   step-Sub :  ∀ {n} → {dest r1 r2 : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →
@@ -45,7 +45,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
         r = updateAt (s .State.registers) dest (λ x → dif)
         t = ⟨ Sub dest r1 r2 , r1_val ∷ r2_val ∷ dif ∷ [] ⟩
     
-    in t , p , s —→ [ (suc (s .State.pc)) , r , (s .State.UR) ]
+    in t , p , s —→ [ (suc (s .State.pc)) , r ]
       
 
   step-Addi :  ∀ {n} → {dest r1 : Fin 32} → {temp : ℕ} → (t : Trace) → (p : Program n) → (s : State) →
@@ -59,7 +59,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
         r = updateAt (s .State.registers) dest (λ x → sum)
         t = ⟨ Addi dest r1 temp , r1_val ∷ sum ∷ 0 ∷ [] ⟩
     
-    in t , p , s —→ [ (suc (s .State.pc)) , r , (s .State.UR) ]
+    in t , p , s —→ [ (suc (s .State.pc)) , r ]
 
   step-Jump : ∀ {n jmp-pc x₁ x₂} → (t : Trace) → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
@@ -67,7 +67,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ (Jump jmp-pc)) →
     (prf-trace : t ≡ ⟨ Jump x₁ , x₂ ∷ 0 ∷ 0 ∷ [] ⟩) →
 
-    t , p , s —→ [ jmp-pc , (s .State.registers) , (s .State.UR) ]
+    t , p , s —→ [ jmp-pc , (s .State.registers) ]
   
   step-Bgtz-l : ∀ {n bgtz-pc x₁ x₂} → {src : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
@@ -77,7 +77,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-trace : t ≡ ⟨ Bgtz src bgtz-pc , x₁ ∷ x₂ ∷ 0 ∷ [] ⟩) →
     (prf-canStep : s .State.pc < n ∸ 1 ) → 
 
-    t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) , (s .State.UR) ]
+    t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ]
     
 
   step-Bgtz-g : ∀ {n bgtz-pc x₁ x₂} → {src : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                         
@@ -87,7 +87,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ (Bgtz src bgtz-pc)) →
     (prf-trace : t ≡ ⟨ Bgtz src bgtz-pc , x₁ ∷ x₂ ∷ 0 ∷ [] ⟩) →
 
-    t , p , s —→ [ bgtz-pc , (s .State.registers) , (s .State.UR) ]
+    t , p , s —→ [ bgtz-pc , (s .State.registers) ]
 
 
   step-Call-Unt-Sentry : ∀ {n jmp-pc} → (t : Trace) → (p : Program n) → (s : State) →                     
@@ -99,21 +99,28 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
 
     (prf-trace : t ≡ ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
-    t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) , (s .State.UR) ] 
+    t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
     -- pc + 1
     -- TODO: I do not need to send/check where the jmp-pc goes. 
     -- Should I have two notions call-unt. 
     -- If I default to 0, will things break
 
-  -- will never go here becuase this would be a NoOp, since starts as untrusted ?? maybe its ok?
-  step-Ret-Unt : ∀ {n UR} → (t : Trace) → (p : Program n) → (s : State) →                     
-    (prf-cur : s .State.pc < n) → 
-    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt UR ) →
-    -- (prf-canStep : s .State.pc < n ∸ 1 ) → 
-    (prf-trace : t ≡ ⟨ Return-Unt UR , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+  -- will never go here becuase this would be a NoOp, since starts as untrusted 
+  -- step-Ret-Unt : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+  --   (prf-cur : s .State.pc < n) → 
+  --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) →
+  --   t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
+  --   -- pc + 1
 
-    t , p , s —→ [ s .State.pc , (s .State.registers) , UR ] 
-  -- TODO: Should I increment pc, i think yes? but if i dont, maybe its fine.
+  step-Load-UR : ∀ {n temp} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
+      (prf-cur : s .State.pc < n) → 
+      (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
+      (prf-canStep : s .State.pc < n ∸ 1 ) → 
+      (prf-trace : t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+
+      let r = updateAt (s .State.registers) dest (λ x → (temp))
+                 
+      in t , p , s —→ [ (suc (s .State.pc)) , r ]
 
   step-Return : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
     (prf-cur : s .State.pc < n) → 
@@ -128,29 +135,9 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-trace : t ≡ ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
     t , p , s —→ s  
-
-
-  step-Load-UR : ∀ {n} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
-      (prf-cur : s .State.pc < n) → 
-      (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
-      (prf-canStep : s .State.pc < n ∸ 1 ) → 
-      (prf-trace : t ≡ ⟨ Load-UR dest , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
-
-      let r = updateAt (s .State.registers) dest (λ x → (s .State.UR))
-                 
-      in t , p , s —→ [ (suc (s .State.pc)) , r , (s .State.UR) ]
-
-  -- step-Load-UR-Sentry : ∀ {n} {dest : Fin 32} {temp : ℕ} → (t : Trace) → (p : Program n) → (s : State) →                       
-  --     (prf-cur : s .State.pc < n) → 
-  --     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
-  --     (prf-canStep : s .State.pc < n ∸ 1 ) → 
-  --     (prf-trace : t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
-
-  --     let r = updateAt (s .State.registers) dest (λ x → temp)
-                 
-  --     in t , p , s —→ [ (suc (s .State.pc)) , r , (s .State.UR) ]
-
-
+  
+  step-Done : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+    t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
     
 infix 4 _,_,_—→*_
 data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set where
@@ -162,4 +149,4 @@ data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set
       → t , p , s —→* s₂
 
 
-  
+ 

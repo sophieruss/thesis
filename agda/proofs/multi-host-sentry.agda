@@ -30,7 +30,7 @@ prf : ∀ {n} {p : Program n} {t : Trace} {sₕ sₕ' : Hstate} {sₛ : State}
 -- What assumptions am I making about the trace?
 -- How can I check it? I think I am assuming I trust trace. Thus don't check?
 
-prf refl refl refl (done p ([[ pc , reg , true , _ , _ , _ ]])) = [ pc , reg ] , {!   !} , refl , refl
+prf refl refl refl (done p ( [[ pc , reg , true , _ , _ , _ , _ ]] )) = [ pc , reg ] , {!   !} , refl , refl
 prf refl refl refl (step—→ p s s₁ s₂ _ t₂ d (step-NoOp p ([[ pc , reg , true , _ , _ , _ ]]) prf₁ cmd-prf)) = [ pc , reg ] , step-NoOp ⟨ t₂ .Trace.instr , t₂ .Trace.args ⟩ p _ prf₁ cmd-prf , {!   !} , {!   !} -- with trans (sym cmd-prf) cmd-prf₁
 -- ... | refl = refl
 -- prf refl refl refl (step—→ p s s₁ s₂ t₁ t₂ d (step-NoOp p ([[ pc , reg , true , _ , _ , _ ]]) prf₁ cmd-prf)) = [ pc , reg ] , step-NoOp ⟨ t₂ .Trace.instr , t₂ .Trace.args ⟩ p _ prf₁ cmd-prf , {!   !} , {!   !}
