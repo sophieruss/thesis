@@ -1,0 +1,10 @@
+name = "trylean"
+version = "0.1.0"
+defaultTargets = ["trylean"]
+
+[[lean_lib]]
+name = "Trylean"
+
+[[lean_exe]]
+name = "trylean"
+root = "Main"

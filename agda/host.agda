@@ -8,7 +8,6 @@ open import Data.Fin using (Fin; zero; suc; #_; fromℕ<; toℕ)
 open import Data.List.Base using (List)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 
-
 record State : Set where
   constructor [[_,_,_,_,_,_]]
   field
@@ -19,18 +18,25 @@ record State : Set where
     SR : Vec ℕ 32           -- saved registers (copy)
     ret-pc : ℕ              -- pc to return to
 
-   
+  
+-- record Trace (h : State): Set where
+--   constructor ⟨_,_⟩
+--   field
+--     instr : Instruction
+--     args :  Vec ℕ 3
+--     valid : ∀ {dest temp} → instr ≡ Load-UR-Sentry dest temp → temp ≡ State.UR h
 
 infix 4 _,_—→_,_
 data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
 
   
-  step-NoOp : ∀ {n} → (p : Program n) → (s : State) →                         
+  step-NoOp : ∀ {n} {t : Trace} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n ) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ NoOp) →
     -- (prf-canStep : s .State.pc < n ∸ 1 ) → 
+    (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
-    p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , t
   
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf-cur : s .State.pc < n ) → 
@@ -156,7 +162,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     p , s —→ s , ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩
 
   
-  step-Load-UR : ∀ {n} → {dest : Fin 32} → (p : Program n) → (s : State) →                         
+  step-Load-UR : ∀ {n} {t : Trace} → {dest : Fin 32} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
     (prf-canStep : s .State.pc < n ∸ 1 ) → 
@@ -172,7 +178,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
 infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
     done : ∀ {n} → ∀ (p : Program n) → (s : State) → (t : Trace)
-      → p , s —→* s , t -- Is there a way to ignore trace?
+      → p , s —→* s , t
     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
       → p , s₁ —→* s₂ , t₂
       → p , s —→ s₁ , t₁
