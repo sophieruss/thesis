@@ -1,6 +1,4 @@
-module agda.proofs.reverse*-noload where
-
--- apr 6, 2024. try reversing host and sentry 
+module agda.proofs.postulate-prf where
 
 open import agda.commands
 open import agda.host renaming (State to Hstate)
@@ -18,26 +16,6 @@ open import Data.Bool using (Bool; true; false; if_then_else_)
 
 equiv : Hstate → State → Set
 equiv sₕ sₛ = (sₕ .Hstate.pc ≡ sₛ .State.pc) × (sₕ .Hstate.registers ≡ sₛ .State.registers)
-
-
--- trace-ur-match : ∀ {n dest temp} {p : Program n} {h : Hstate} {s : State} {t : Trace}
---                → (t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩)
---                → (h .Hstate.mode ≡ true)
---                → (h ≡ [[ pc , reg , true , UR , SR , ret-pc ]])
---                → (equiv h s)
---                → (lookup (p .Program.instructions) (fromℕ< (prf-cur))) ≡ Load-UR dest
---                → temp ≡ Hstate.UR h
--- trace-ur-match {n} {dest} {temp} {p} {[[ _ , _ , true , UR , SR , ret-pc ]]} {s} {⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} prf-cur refl refl (refl , refl) x = {!  !}  
-
--- trace-ur-match : ∀ {n dest temp} {p : Program n} {h : Hstate} {s : State} {t : Trace}
---                → (t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩)
---                → (h .Hstate.mode ≡ true)
---         --        → (h ≡ [[ pc , reg , true , UR , SR , ret-pc ]])
---                → (equiv h s)
---                → (lookup (p .Program.instructions) (fromℕ< (prf-cur))) ≡ Load-UR dest
---                → temp ≡ Hstate.UR h
--- trace-ur-match refl refl refl (refl , refl) refl = refl
-
 
 
 -- trusted  
@@ -187,7 +165,7 @@ prf {n} {dest} {temp} {p} {⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h
         let
             ur-val = Hstate.UR h
             tmp≡ur : tmp ≡ ur-val
-            tmp≡ur = {!   !}
+            tmp≡ur = tmp≡ur
 
             h' = [[ suc pc , updateAt reg dst (λ x → Hstate.UR h) , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]]
             regs-equal : updateAt reg dst (λ _ → ur-val) ≡ updateAt reg dst (λ _ → tmp)
@@ -201,6 +179,10 @@ prf {n} {dest} {temp} {p} {⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h
                 (done p _ _) 
                 (step-Load-UR p h prf-cur prf-cmd prf-canStep) ,
             refl , regs-equal
+  where   
+        postulate
+                tmp≡ur : tmp ≡ Hstate.UR h
+
         
 prf {n} {dest} {temp} {p} {t} {h} {s} {s'} refl (refl , refl) zz 
         (step-Done (t) p [ pc , reg ] ) 
