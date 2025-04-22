@@ -112,9 +112,18 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
   --   t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
   --   -- pc + 1
 
+  -- step-Load-UR : ∀ {n temp} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
+  --       (prf-cur : s .State.pc < n) → 
+  --       (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR-Sentry dest temp) → 
+  --       --TODO: what does the sentry see for the load ur command? It wouldn't be the same as the host. but also its getting its instructions from trace/the host, so maybe?
+  --       (prf-canStep : s .State.pc < n ∸ 1 ) → 
+  --       (prf-trace : t ≡ ⟨ Load-UR dest , temp ∷ 0 ∷ 0 ∷ [] ⟩) →
+  --       let r = updateAt (s .State.registers) dest (λ x → (temp))
+  --       in t , p , s —→ [ (suc (s .State.pc)) , r ]
+
   step-Load-UR : ∀ {n temp} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
       (prf-cur : s .State.pc < n) → 
-      (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
+      (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) → -- exact same instruction as host
       (prf-canStep : s .State.pc < n ∸ 1 ) → 
       (prf-trace : t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
@@ -136,8 +145,8 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
 
     t , p , s —→ s  
   
-  step-Done : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
-    t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
+  -- step-Done : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
+  --   t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
     
 infix 4 _,_,_—→*_
 data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set where

@@ -167,11 +167,21 @@ prf {n} {dest} {temp} {p} {⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h
   where   
         postulate
                 tmp≡ur : tmp ≡ Hstate.UR h
+-- prf {n} {dest} {temp} {p} {⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) zz 
+--         (step-Load-UR {n} {tmp} {dst} (⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩) p [ pc , reg ] prf-cur prf-cmd prf-canStep prf-trace) =
+        
+--         [[ suc pc , updateAt reg dst (λ x → Hstate.UR h) , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
+--         step—→ p h 
+--         [[ suc pc , updateAt reg dst (λ x → Hstate.UR h) , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _ 
+--         ⟨ Load-UR-Sentry dst (Hstate.UR h) , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ 
+--         (done p _ _) 
+--         (step-Load-UR p h prf-cur {!   !} prf-canStep) ,
+--         refl , {!   !}
 
         
-prf {n} {dest} {temp} {p} {t} {h} {s} {s'} refl (refl , refl) zz 
-        (step-Done (t) p [ pc , reg ] ) 
-        = 
-        [[ pc , reg , true , _ , _ , _ ]] , 
-        (done _ _ _) , 
-        refl , refl 
+-- prf {n} {dest} {temp} {p} {t} {h} {s} {s'} refl (refl , refl) zz 
+--         (step-Done (t) p [ pc , reg ] ) 
+--         = 
+--         [[ pc , reg , true , _ , _ , _ ]] , 
+--         (done _ _ _) , 
+--         refl , refl 
