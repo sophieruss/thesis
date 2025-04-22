@@ -18,7 +18,8 @@ data Instruction : Set where
   Disable : Instruction
   Call-Unt : ℕ → Instruction 
   Call-Unt-Sentry : Instruction 
-  Return-Unt : ℕ → Instruction
+  -- Return-Unt : ℕ → Instruction
+  Return-Unt : Instruction
   Return : Instruction
   Alert : Instruction
   Load-UR : Fin 32 → Instruction

@@ -1,6 +1,4 @@
-module agda.host where
-
---old version of host. This works with postulate-prf
+module agda.host-new where
 
 open import agda.commands hiding (State)
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
@@ -9,7 +7,6 @@ open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; le
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<; toℕ)
 open import Data.List.Base using (List)
 open import Data.Bool using (Bool; true; false; if_then_else_)
-
 
 record State : Set where
   constructor [[_,_,_,_,_,_]]
@@ -31,7 +28,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     -- (prf-canStep : s .State.pc < n ∸ 1 ) → 
     (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
-    p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , t
   
   step-Add :  ∀ {n} → {dest r1 r2 : Fin 32} → (p : Program n) → (s : State) →
     (prf-cur : s .State.pc < n ) → 
@@ -138,7 +135,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     -- Is there a pc = 0. Do I need to be doing pc < n+1
     (prf-canStep : s .State.ret-pc ≤ n) →    -- can this be ≤, or would = n mean stepping off?
     (prf-mode : s .State.mode ≡ false ) → -- single entry
-    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt ) → --if i can prove deterministic without this line, maybe i am fine.
+    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → --if i can prove deterministic without this line, maybe i am fine.
 
     let newstate = [[ s .State.ret-pc , s .State.SR , true , s .State.UR , s .State.SR , s .State.ret-pc ]]
         t = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
@@ -146,10 +143,12 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     in p , s —→ newstate , t
 
 
-  step-Return : ∀ {n} → (p : Program n) → (s : State) →                         
+  step-Return : ∀ {n t} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return) →
-    p , s —→ s , ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+    (prf-trace : t ≡ ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+
+    p , s —→ s , t
 
   step-Alert : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
@@ -188,7 +187,8 @@ data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → 
   Return : ∀ {n} → (p : Program n) → (s : State) → (t : Trace)                  
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return) →
-    p , s —→* s , ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩ ✓
+    (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+    p , s —→* s , t ✓
     
   step : ∀ {n} → (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
     → p , s₁ —→* s₂ , t₂ ✓
@@ -223,3 +223,20 @@ data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → 
 --       → p , s —→* s₂
 
 
+
+  
+trace-deterministic : ∀ {n} (p : Program n) (s : State) (s₁ s₂ : State) (t₁ t₂ : Trace) →
+                      p , s —→ s₁ , t₁ →
+                      p , s —→ s₂ , t₂ →
+                      t₁ ≡ t₂
+
+
+trace-deterministic p s s₁ s₂ t₁ t₂ (step-NoOp p s pc cmd trace) (step-NoOp .p .s pc1 cmd1 trace₁) = {!   !}
+trace-deterministic p s s₁ s₂ t₁ t₂ (step-Add p s a pc cmd) (step-Add .p .s a1 pc1 cmd1) = {!   !}
+
+
+trace-deterministic p s s₁ s₂ t₁ t₂ step1 step2 = {!   !} 
+
+
+
+   

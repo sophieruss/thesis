@@ -1,7 +1,7 @@
 module agda.proofs.postulate-prf where
 
 open import agda.commands
-open import agda.host renaming (State to Hstate)
+open import agda.host  renaming (State to Hstate)
 open import agda.sentry
 open import Data.Nat using (ℕ; compare; _≤_; _≥_;  _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; sym; trans; subst)
@@ -141,24 +141,9 @@ prf {n} {dest} {temp} {p} {⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {
          [[ suc pc , reg , true , _ , _ , _ ]]  -- ultimate end state
          ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ 
          (done _ _ _)
-                (step-Ret-Unt _ _ prf-cur refl ))                                        -- proof that [[ jmp-pc , reg , false , UR , reg , suc pc ]] —→ [[ suc pc , reg , true , UR , reg , suc pc ]]
+                (step-Ret-Unt p _ prf-canStep prf-cur refl {!   !} ))                                        -- proof that [[ jmp-pc , reg , false , UR , reg , suc pc ]] —→ [[ suc pc , reg , true , UR , reg , suc pc ]]
                 (step-Call-Unt _ _ prf-cur prf-canStep refl prf-cmd prf-canReturn) ,        -- proof that 
         refl , refl 
-
-
-
--- prf {n} {dest} {temp} {p} {t} {h} {s} {s'} refl (refl , refl) trace→temp≡ur
---         (step-Load-UR {dest = dest} (⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) p [ pc , reg ] prf-cur prf-cmd prf-canStep prf-trace)
---         =
---         ?
-        -- [[ suc pc , updateAt reg dest (λ x → Hstate.UR h) , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , {!   !}
-        -- [[ suc pc , updateAt reg dest (λ x → temp) , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] , 
-        -- (step—→ p h
-        -- [[ suc pc , updateAt reg dest (λ x → temp) , true , Hstate.UR h , Hstate.SR h , Hstate.ret-pc h ]] _
-        -- ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ 
-        -- (done _ _ _) 
-        -- {! t !} ) , 
-        -- (refl , {!   !})
 
 prf {n} {dest} {temp} {p} {⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {s} {s'} refl (refl , refl) zz 
         (step-Load-UR {n} {tmp} {dst} (⟨ Load-UR-Sentry _ _ , 0 ∷ 0 ∷ 0 ∷ [] ⟩) p [ pc , reg ] prf-cur prf-cmd prf-canStep prf-trace) =
@@ -190,43 +175,3 @@ prf {n} {dest} {temp} {p} {t} {h} {s} {s'} refl (refl , refl) zz
         [[ pc , reg , true , _ , _ , _ ]] , 
         (done _ _ _) , 
         refl , refl 
-
-
-
-
--- prf {n} {del1} {del2} {p} {⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {sₕ} {sₛ} {sₛ'} h-mode (refl , refl) temp≡ur 
--- (step-Load-UR .(⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) p .sₛ prf-cur prf-cmd prf-canStep refl) =
-
-
---   let
---     -- Extract UR from host state
---     ur-val = Hstate.UR sₕ
-
---     -- Prove temp equals UR from host state
---     temp≡ur : temp ≡ ur-val
---     temp≡ur = temp≡ur  -- From the hypothesis
-
---     -- Updated host state: pc + 1, register updated with UR
---     sₕ' = [[ suc (sₕ .Hstate.pc) , updateAt (sₕ .Hstate.registers) dest (λ _ → ur-val) , true , ur-val , sₕ .Hstate.SR , sₕ .Hstate.ret-pc ]]
-
---     -- Host's step: step-Load-UR
---     host-step : p , sₕ —→ sₕ' , ⟨ Load-UR-Sentry dest ur-val , 0 ∷ 0 ∷ 0 ∷ [] ⟩
---     host-step = step-Load-UR p sₕ prf-cur prf-cmd prf-canStep
-
---     -- Trace matches the one expected by the sentry
---     trace-match : ⟨ Load-UR-Sentry dest ur-val , 0 ∷ 0 ∷ 0 ∷ [] ⟩ ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
---     trace-match = cong (λ v → ⟨ Load-UR-Sentry dest v , 0 ∷ 0 ∷ 0 ∷ [] ⟩) (sym temp≡ur)
-
---     -- Updated sentry state
---     sₛ'' = [ suc (sₛ .State.pc) , updateAt (sₛ .State.registers) dest (λ _ → temp) ]
-
---     -- Equivalence after update
---     equiv-after : equiv sₕ' sₛ''
---     equiv-after =
---       ( refl  -- pc ≡ pc
---       , trans (cong (λ v → updateAt (sₕ .Hstate.registers) dest (λ _ → v)) temp≡ur)  -- registers ≡ registers
---               (cong (updateAt (sₛ .State.registers) dest) (λ _ → temp≡ur))
---       )
-
---   in
---     sₕ' , (step—→ p sₕ sₕ' sₕ' ⟨ Load-UR-Sentry dest ur-val , 0 ∷ 0 ∷ 0 ∷ [] ⟩ ⟨ Load-UR-Sentry dest ur-val , 0 ∷ 0 ∷ 0 ∷ [] ⟩ (done p sₕ' ⟨ Load-UR-Sentry dest ur-val , 0 ∷ 0 ∷ 0 ∷ [] ⟩) host-step) , equiv-after  

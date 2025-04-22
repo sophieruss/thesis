@@ -38,6 +38,11 @@ equiv sₕ sₛ = (sₕ .Hstate.pc ≡ sₛ .State.pc) × (sₕ .Hstate.register
 --                → temp ≡ Hstate.UR h
 -- trace-ur-match refl refl refl (refl , refl) refl = refl
 
+trace-ur-match : ∀ {dest temp} {t : Trace} {h : Hstate}
+               → t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+               → temp ≡ Hstate.UR h
+trace-ur-match refl = {!   !} 
+
 
 
 -- trusted  

@@ -26,18 +26,19 @@ prf : ∀ {n} {p : Program n} {t : Trace} {h h' : Hstate} {s : State}
     → ∃[ s' ] (t , p , s —→ s') × (equiv h' s')
 
 
+prf a b c = {!   !}
 -- my base case
-prf {n} {p} {t} {h} {.h} {s} refl (refl , refl) (done .p .h .t) = 
-        s , step-Done t p s , (refl , refl)
+-- prf {n} {p} {t} {h} {.h} {s} refl (refl , refl) (done .p .h .t) = 
+--         s , step-Done t p s , (refl , refl)
 
-prf {n} {p} {⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {h'} {s} refl (refl , refl) 
-    (step—→ .p .h .h' _ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ (done .p .h' ._) (step-NoOp .p .h prf-cur prf-cmd prf-trace)) =
-    [ Hstate.pc h , Hstate.registers h ] , 
-    step-NoOp _ p [ Hstate.pc h , Hstate.registers h ] prf-cur prf-cmd refl , 
-    (refl , refl)
+-- prf {n} {p} {⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩} {h} {h'} {s} refl (refl , refl) 
+--     (step—→ .p .h .h' _ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩ _ (done .p .h' ._) (step-NoOp .p .h prf-cur prf-cmd prf-trace)) =
+--     [ Hstate.pc h , Hstate.registers h ] , 
+--     step-NoOp _ p [ Hstate.pc h , Hstate.registers h ] prf-cur prf-cmd refl , 
+--     (refl , refl)
 
 
-(done .p .([[ s .State.pc , s .State.registers , true , _ , _ , _ ]]) .(⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩)) = [ {!   !} , {!   !} ] , ({!   !} , {!   !})
+-- (done .p .([[ s .State.pc , s .State.registers , true , _ , _ , _ ]]) .(⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩)) = [ {!   !} , {!   !} ] , ({!   !} , {!   !})
 -- prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) (step—→ .p .([[ s .State.pc , s .State.registers , true , _ , _ , _ ]]) s₁ .h' t₁ .(⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩) c x) = {!   !} 
 
 
