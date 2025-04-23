@@ -7,6 +7,7 @@ open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; le
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<; toℕ)
 open import Data.List.Base using (List)
 open import Data.Bool using (Bool; true; false; if_then_else_)
+open import Data.Sum using (_⊎_; inj₁; inj₂)
 
 record State : Set where
   constructor [[_,_,_,_,_,_]]
@@ -88,6 +89,22 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
       
     in p , s —→ newstate , t
+
+  -- step-Jump : ∀ {n jmp-pc t} → (p : Program n) → (s : State) →                         
+  --   (prf-cur : s .State.pc < n) →
+  --   (prf-canStep : jmp-pc < n) → 
+  --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ (Jump jmp-pc)) →
+  --   let
+  --     jump-trace = ⟨ Jump jmp-pc , jmp-pc ∷ 0 ∷ 0 ∷ [] ⟩
+  --     noop-trace = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+  --   in
+  --   (prf-trace : (t ≡ jump-trace) ⊎ (t ≡ noop-trace)) → 
+    
+  --   let 
+  --     newstate = [[ jmp-pc , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]]
+  --     t = if (s .State.mode) then jump-trace else noop-trace
+  --   in 
+  --   p , s —→ newstate , t
   
   step-Bgtz-l : ∀ {n bgtz-pc} → {src : Fin 32} →  (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
@@ -122,10 +139,12 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf-mode : s .State.mode ≡ true ) → --single entry
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Call-Unt jmp-pc) →
     (prf-canStep : s .State.pc < n ∸ 1 ) →    -- is this true? This states that the program MUST return from untrusted. like sorta, but also confused. 
+    -- TODO : newstate = [[ jmp-pc , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
 
-    let newstate = [[ jmp-pc , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
+    let newstate = [[ (suc (s .State.pc)) , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
         t = if (s .State.mode ) 
             then ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩ -- potential issue
+            -- then ⟨ Call-Unt jmp-pc , 0 ∷ 0 ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
       
     in p , s —→ newstate , t
@@ -143,12 +162,13 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     in p , s —→ newstate , t
 
 
-  step-Return : ∀ {n t} → (p : Program n) → (s : State) →                         
+  step-Return : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return) →
-    (prf-trace : t ≡ ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+    -- (prf-trace : t ≡ ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
-    p , s —→ s , t
+    -- p , s —→ s , t
+    p , s —→ s , ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩
 
   step-Alert : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
@@ -163,7 +183,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
 
     let r = updateAt (s .State.registers) dest (λ _ → s .State.UR)
         t = if (s .State.mode ) 
-            then ⟨ Load-UR-Sentry dest (s .State.UR) , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+            then ⟨ Load-UR dest , (s .State.UR) ∷ 0 ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
          
         h = [[ (suc (s .State.pc)) , r , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]]
@@ -196,47 +216,4 @@ data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → 
     → p , s —→* s₂ , t₂ ✓
 
 
-
--- record Trace (h : State): Set where
---   constructor ⟨_,_⟩
---   field
---     instr : Instruction
---     args :  Vec ℕ 3
---     valid : ∀ {dest temp} → instr ≡ Load-UR-Sentry dest temp → temp ≡ State.UR h
-
--- trace-ur-match : ∀ {dest temp} {t : Trace} {h : State}
---                → t ≡ ⟨ Load-UR-Sentry dest temp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
---                → temp ≡ State.UR h
--- trace-ur-match refl = {! refl  !} 
---  I dont think this holds. 
--- I don't think this is what I am saying, because in my proof 
--- the trace and state have a relationship from the step
--- p , sₕ —→* sₕ' , t
-
--- infix 4 _,_—→*_
--- data _,_—→*_ : ∀ {n} → Program n → State → State → Set where
---     done : ∀ {n} → ∀ (p : Program n) → (s : State) 
---       → p , s —→* s  -- Is there a way to ignore trace?
---     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ : Trace)
---       → p , s₁ —→* s₂
---       → p , s —→ s₁ , t₁
---       → p , s —→* s₂
-
-
-
   
-trace-deterministic : ∀ {n} (p : Program n) (s : State) (s₁ s₂ : State) (t₁ t₂ : Trace) →
-                      p , s —→ s₁ , t₁ →
-                      p , s —→ s₂ , t₂ →
-                      t₁ ≡ t₂
-
-
-trace-deterministic p s s₁ s₂ t₁ t₂ (step-NoOp p s pc cmd trace) (step-NoOp .p .s pc1 cmd1 trace₁) = {!   !}
-trace-deterministic p s s₁ s₂ t₁ t₂ (step-Add p s a pc cmd) (step-Add .p .s a1 pc1 cmd1) = {!   !}
-
-
-trace-deterministic p s s₁ s₂ t₁ t₂ step1 step2 = {!   !} 
-
-
-
-   
