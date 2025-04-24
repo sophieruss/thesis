@@ -8,6 +8,7 @@ open import Data.Vec.Base using (Vec; lookup; _∷_; [])
 open import Data.Fin using (Fin; fromℕ<)
 open import Relation.Nullary using (¬_; contradiction; yes; no)
 open import Data.Empty using (⊥; ⊥-elim)
+open import Data.Unit using (⊤; tt)
 open import Data.Product using (∃; ∃-syntax; _×_; _,_; Σ; proj₁; proj₂)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 
@@ -59,6 +60,29 @@ mode-preserved p s s' t (step-Return _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Alert _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Load-UR _ _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Put-UR _ _ _ _ mode _) _ _ = mode
+
+-- sum lemma: While in untrusted mode, any step that's not Return-Unt preserves untrusted mode
+unt-preserved : ∀ {n} {s s' : State} {t : Trace} (p : Program n) →
+                 (s .State.mode ≡ false) →
+                 (step : p , s —→ s' , t) →
+                 (lookup (p .Program.instructions) (fromℕ< (step-prf step)) ≢ Return-Unt) →
+                 (s' .State.mode ≡ false)
+
+unt-preserved p s-false (step-NoOp .p _ prf-cur prf-cmd prf-trace) ¬ret = s-false
+unt-preserved p s-false (step-Add .p _ prf-cur prf-cmd prf-canStep) ¬ret = s-false
+unt-preserved p s-false (step-Sub .p _ prf-cur prf-cmd prf-canStep) ¬ret = s-false
+unt-preserved p s-false (step-Addi .p _ prf-cur prf-cmd prf-canStep) ¬ret = s-false
+unt-preserved p s-false (step-Jump .p _ prf-cur prf-canStep prf-cmd) ¬ret = s-false
+unt-preserved p s-false (step-Bgtz-l .p _ prf-cur prf-zero prf-cmd prf-canStep) ¬ret = s-false
+unt-preserved p s-false (step-Bgtz-g .p _ prf-cur prf-gzero prf-cmd prf-canStep) ¬ret = s-false
+unt-preserved p s-false (step-Call-Unt .p _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) ¬ret = refl
+unt-preserved p s-false (step-Ret-Unt .p _ prf-cur prf-canStep prf-mode prf-cmd) ¬ret = ⊥-elim (¬ret prf-cmd)
+unt-preserved p s-false (step-Return .p _ prf-cur prf-cmd) ¬ret = s-false
+unt-preserved p s-false (step-Alert .p _ prf-cur prf-cmd) ¬ret = s-false
+unt-preserved p s-false (step-Load-UR .p _ prf-cur prf-cmd prf-canStep) ¬ret = s-false
+unt-preserved p s-false (step-Put-UR .p _ prf-cur prf-cmd prf-mode prf-canStep) ¬ret = refl
+
+
 
 ------------------------------------------------------------------------
 -- SWITCH TO UNTRUSTED
@@ -125,7 +149,7 @@ go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (t
 -- Issue is scope is entire program
 -- Instead do I need to narrow scope te be a small part of program?
 
-------------------- version II
+------------------- version II -------------------
 
 -- if       if a program takes the following two successive steps
 --              a) small-step going into untrusted mode (call-unt)
@@ -147,21 +171,13 @@ go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (t
 
 
 
-
-
-
-
-
-
-------------------- version III
+------------------- version III -------------------
 
 -- if       a program takes small-step into untrusted mode (call-unt step)
 -- thenfi   the program is in trusted mode at some point after
 -- then
 
 --  There exists some intermediate state s₂ where we return from untrusted modthe program must have taken a big step in untrusted mode, immediately followed by a small step back to trusted
-
--------------------
 
 -- v3 : ∀ {n jmp-pc} (p : Program n) (s s₁ s₃ : State) (t₁ t₃ : Trace) →
 --                   (s .State.mode ≡ true) →
@@ -191,7 +207,7 @@ go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (t
 
 
 
-------------------- version IV
+------------------- version IV -------------------
 
 -- if           a program takes small-step into untrusted mode (call-unt step)
 -- thenif       a program is later in trusted mode
@@ -219,3 +235,65 @@ v4 {n} {s} {s₁} {s₂} {t₁} {t₂} p
     (step-Ret-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁)
     s₂-true 
     = prf-cmd₁
+
+
+------------------- version V -------------------
+
+-- if           a program takes small-step into untrusted mode (call-unt step)
+-- thenif       a program is later in trusted mode
+-- then         the program must have taken a return-unt step
+
+-- Based on v4 proof, we know that if it starts in steps into trusted, ends in trusted, it must have taken a return-unt step
+-- now I want to build on this and say there exists a way for while its in untrusted, it can take an arbitraty step that is not return-unt, and remaing in untrusted which we know when i proved mode preserved
+
+
+v5 : ∀ {n} {s s₁ s₂ : State} {t₁ t₂ : Trace} (p : Program n) →
+     -- Initial step: enter untrusted mode via Call-Unt
+     (call-step : p , s —→ s₁ , t₁) →
+     (s .State.mode ≡ true) →
+     (s₁ .State.mode ≡ false) →
+     (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
+     
+     -- Later step: reach trusted mode again
+     (later-step : p , s₁ —→ s₂ , t₂) →
+     (s₂ .State.mode ≡ true) →
+     (lookup (p .Program.instructions) (fromℕ< (step-prf later-step)) ≡ Return-Unt) →
+     -- all of above is v4 
+     
+     -- Then there exists some state s' where:
+     -- 1. There's a sequence of steps from s₁ to s' where mode remains false
+     -- 2. The final step from s' to s₂ is Return-Unt
+    --  ∃[ sⱼ ] ∃[ tⱼ ] (p , s₁  *—→ sⱼ , tⱼ × 
+    --                   (∀ {sₖ tₖ} → (p , s₁  *—→ sₖ , tₖ) → (p , sₖ —→ s₂ , t₂) → 
+    --                   (sₖ .State.mode ≡ false)))
+    (∀ {sₖ tₖ} → 
+    (sₖ .State.mode ≡ false) →          -- all steps stay untrusted
+    (big : p , s₁  *—→ sₖ , tₖ) →       -- steps in untrusted
+    (p , sₖ —→ s₂ , t₂))
+    -- (lookup (p .Program.instructions) (fromℕ< (step-prf step)) ≡ Return-Unt) →
+    -- (sₖ .State.mode ≡ false))
+  
+-- v5 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
+--     (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
+--         s-true s₁-false (jmp-pc , call-instr) 
+--         (step-Ret-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁) 
+--         s₂-true prf-cmd₂ {[[ _ , _ , false , _ , _ , _ ]]} {tₖ} sₖ-false big
+
+v5 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
+    (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
+    s-true s₁-false (jmp-pc , call-instr) 
+    (step-Ret-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁) 
+    s₂-true prf-cmd₂ {[[ _ , _ , false , _ , _ , _ ]]} {tₖ} sₖ-false 
+    (done .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) .tₖ) 
+    = 
+    step-Ret-Unt _ _ prf-cur₁ prf-canStep₁ refl prf-cmd₁
+    
+v5 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
+    (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
+    s-true s₁-false (jmp-pc , call-instr) 
+    (step-Ret-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁) 
+    s₂-true prf-cmd₂ {[[ _ , _ , false , _ , _ , _ ]]} {tₖ} sₖ-false 
+    (step—→ .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) s₃ aa t₃ .tₖ x big) 
+    = 
+    {!   !}
+  

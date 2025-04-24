@@ -228,3 +228,12 @@ data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → 
 
 
   
+
+infix 4 _,_*—→_,_
+data _,_*—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
+    done : ∀ {n} → ∀ (p : Program n) → (s : State) → (t : Trace)
+      → p , s *—→ s , t
+    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
+       → (p , s₁ —→ s₂ , t₂)
+       → (p , s *—→  s₁ , t₁ )
+       → (p , s *—→ s₂ , t₂ )
