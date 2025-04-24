@@ -25,6 +25,7 @@ data Instruction : Set where
   Load-UR : Fin 32 → Instruction
   Load-UR-Sentry : Fin 32 → ℕ → Instruction
   Empty : Instruction
+  Put-UR : Fin 32 → Instruction
 
 record Program (n : ℕ) : Set where
   constructor program

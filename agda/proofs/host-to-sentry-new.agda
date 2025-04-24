@@ -1,4 +1,4 @@
-module agda.proofs.host-to-sentry where
+module agda.proofs.host-to-sentry-new where
 
 open import agda.commands
 open import agda.host-new  renaming (State to Hstate)

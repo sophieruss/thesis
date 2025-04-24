@@ -100,18 +100,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-trace : t ≡ ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
     t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
-    -- pc + 1
-    -- TODO: I do not need to send/check where the jmp-pc goes. 
-    -- Should I have two notions call-unt. 
-    -- If I default to 0, will things break
-
-  -- will never go here becuase this would be a NoOp, since starts as untrusted 
-  -- step-Ret-Unt : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
-  --   (prf-cur : s .State.pc < n) → 
-  --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) →
-  --   t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
-  --   -- pc + 1
-
+   
   -- step-Load-UR : ∀ {n temp} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
   --       (prf-cur : s .State.pc < n) → 
   --       (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR-Sentry dest temp) → 

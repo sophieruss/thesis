@@ -7,7 +7,6 @@ open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; le
 open import Data.Fin using (Fin; zero; suc; #_; fromℕ<; toℕ)
 open import Data.List.Base using (List)
 open import Data.Bool using (Bool; true; false; if_then_else_)
-open import Data.Sum using (_⊎_; inj₁; inj₂)
 
 record State : Set where
   constructor [[_,_,_,_,_,_]]
@@ -175,7 +174,6 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Alert) →
     p , s —→ s , ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩
 
-  
   step-Load-UR : ∀ {n} {t : Trace} → {dest : Fin 32} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
@@ -190,6 +188,19 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
             
     -- in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , t
    in p , s —→ h , t
+
+  -- enables user to put a value into UR
+  step-put-UR : ∀ {n} → {r1 : Fin 32} → (p : Program n) → (s : State) →                         
+    (prf-cur : s .State.pc < n) → 
+    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Put-UR r1) →
+    (prf-mode : s .State.mode ≡ false ) → 
+    (prf-canStep : s .State.pc < n ∸ 1 ) → 
+
+    let r1_val = lookup (s .State.registers) r1
+        newstate = [[ (suc (s .State.pc)) , s .State.SR , false , r1_val , s .State.SR , s .State.ret-pc ]]
+        t = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+   
+    in p , s —→ newstate , t
 
 
 infix 4 _,_—→*_,_
