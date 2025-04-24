@@ -190,7 +190,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
    in p , s —→ h , t
 
   -- enables user to put a value into UR
-  step-put-UR : ∀ {n} → {r1 : Fin 32} → (p : Program n) → (s : State) →                         
+  step-Put-UR : ∀ {n} → {r1 : Fin 32} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Put-UR r1) →
     (prf-mode : s .State.mode ≡ false ) → 

@@ -18,11 +18,12 @@ Trusted s = s .State.mode ≡ true
 Untrusted : State → Set
 Untrusted s = s .State.mode ≡ false
 
-
 ------------------------------------------------------------------------
 -- helper lemmas         -- call-unt just change UR,  ->just change mode
 ------------------------------------------------------------------------
--- state mode-preserved for all instructions except call-unt, return-unt
+-- STATE MODE PRESERVED 
+-- <goal: mode preserved for all instructions except call-unt, return-unt>
+
 step-prf : ∀ {n} {p : Program n} {s s' t} → p , s —→ s' , t → s .State.pc < n
 step-prf (step-NoOp _ _ prf-cur _ prf-trace) = prf-cur
 step-prf (step-Add _ _ prf-cur _ _) = prf-cur
@@ -36,6 +37,8 @@ step-prf (step-Ret-Unt _ _ prf-cur _ _ _) = prf-cur
 step-prf (step-Return _ _ prf-cur _) = prf-cur
 step-prf (step-Alert _ _ prf-cur _) = prf-cur
 step-prf (step-Load-UR _ _ prf-cur _ _) = prf-cur
+step-prf (step-Put-UR _ _ prf-cur _ _ _) = prf-cur
+
 
 mode-preserved : ∀ {n} (p : Program n) (s s' : State) (t : Trace) →
                  (step : p , s —→ s' , t) →
@@ -55,12 +58,18 @@ mode-preserved p s s' t (step-Ret-Unt _ _ _ _ mode cmd) ¬call ¬ret =  ⊥-elim
 mode-preserved p s s' t (step-Return _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Alert _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Load-UR _ _ _ _ _) _ _ = refl
+mode-preserved p s s' t (step-Put-UR _ _ _ _ mode _) _ _ = mode
+
 ------------------------------------------------------------------------
--- Switch to untrusted  -- only call-unt
+-- SWITCH TO UNTRUSTED
+-- <goal: only call-unt can switch host mode to untrusted>
+
 go-untrusted : ∀ {n} (p : Program n) (s s' : State) (t : Trace) →
                 (step : p , s —→ s' , t) →
                 (s .State.mode ≡ true) →
                 (s' .State.mode ≡ false) →
+                -- (Trusted s) →
+                -- (Untrusted s') →
                 ∃[ jmp-pc ] (lookup (p .Program.instructions) (fromℕ< (step-prf step)) ≡ Call-Unt jmp-pc)
       
 go-untrusted p s s' t (step-Call-Unt {n} {jmp-pc} _ _ _ _ mode cmd _) mode-true mode-false = jmp-pc , cmd
@@ -75,9 +84,11 @@ go-untrusted p s s' t (step-Bgtz-g _ _ _ _ _ _) mode-true mode-false with () ←
 go-untrusted p s s' t (step-Return _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false)  
 go-untrusted p s s' t (step-Alert _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false)  
 go-untrusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false)  
+go-untrusted p s s' t (step-Put-UR _ _ _ _ mode _) mode-true mode-false with () ← (trans (sym mode-true) mode) 
 
 ------------------------------------------------------------------------
--- Swtich to trusted -- only return-unt
+-- SWITCH TO TRUSTED
+-- <goal: only return-unt can switch host mode to trusted>
 
 go-trusted : ∀ {n} (p : Program n) (s s' : State) (t : Trace) →
                 (step : p , s —→ s' , t) →
@@ -96,76 +107,115 @@ go-trusted p s s' t (step-Ret-Unt _ _ _ _ _ prf-cmd) mode-true mode-false = prf-
 go-trusted p s s' t (step-Return _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false) 
 go-trusted p s s' t (step-Alert _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false) 
 go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false) 
-       
 
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
 
--- main thm
+-- MAIN THM       
+-- <goal: um not sure>
 
-prove that if the host takes multiple steps and ends in a true mode, then for every call-unt command, there must also have been a return-trusted
---  p , s —→* s′ , t′ ×
-    p , s′ —→ [[ (s′ .State.ret-pc) , (s′ .State.SR) , true , (s′ .State.UR) , (s′ .State.SR) , (s′ .State.ret-pc) ]] , t × 
-    (lookup (p .Program.instructions) (fromℕ< {s′ .State.pc} {n} (pc<n))) ≡ Return-Unt
+------------------- version I
+-- if       program has a final return 
+-- then if  there is a call-untrusted, 
+-- then     there must be a return-untrusted
 
+-- given the wording, is there an issue of multiple untrusted calls 
+-- (e.g. would this prove an instance of ret-untrusted exists, 
+--       but now issue of there needing to be same amt of call-untrusted and return-untrusted)
+-- Issue is scope is entire program
+-- Instead do I need to narrow scope te be a small part of program?
 
-EndsWithRet-Unt : ∀ {n} → Program n → State → Trace → Set
-EndsWithRet-Unt {n} p s t = 
-  ∃ λ s′ → 
-  ∃ λ t′ → 
-  ∃ λ (pc<n : s′ .State.pc < n) →
-    p , s —→* s′ , t′ ×
-    p , s′ —→ [[ (s′ .State.ret-pc) , (s′ .State.SR) , true , (s′ .State.UR) , (s′ .State.SR) , (s′ .State.ret-pc) ]] , t × 
-    (lookup (p .Program.instructions) (fromℕ< {s′ .State.pc} {n} (pc<n))) ≡ Return-Unt
+------------------- version II
 
+-- if       if a program takes the following two successive steps
+--              a) small-step going into untrusted mode (call-unt)
+--              b) big-step in untrusted mode (induction?)
+-- then if  the program ends in trusted mode
+-- then     the program must take a small step going into trusted (return-unt) immediately after the big step
 
+-- step-over-untrusted : ∀ {n jmp-pc} (p : Program n) (s s' s'' s''' : State) (t' t'' t''' : Trace) →
+--                   (s .State.mode ≡ true) →
+--                   (s''' .State.mode ≡ true) →
+--                   (go-unt : p , s —→ s' , t') →
+--                   (lookup (p .Program.instructions) (fromℕ< (step-prf go-unt)) ≡ Call-Unt jmp-pc) →                  
+--                   (bigstep : p , s' —→* s'' , t'') →
+--                   (after-bigstep : p , s'' —→ s''' , t''') →
+--                   (lookup (p .Program.instructions) (fromℕ< (step-prf after-bigstep)) ≡ Return-Unt)
 
--- No instruction other than Ret-Unt can transition to trusted mode
--- mode-preserved : ∀ {n} {p : Program n} {s s′ : State} {t : Trace} →
---   Untrusted s →
---   p , s —→ s′ , t →
---   ∃ λ (pc<n : s .State.pc < n) →
--- --   except for return-unt there existsed a way to get to trused`
---   Untrusted s′
-
-
--- mode-preserved untrusted-s c = {!   !}
--- mode-preserved untrusted-s (step-NoOp _ _ prf-cur _ prf-trace) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Add _ _ prf-cur _ _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Sub _ _ prf-cur _ _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Addi _ _ prf-cur _ _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Jump _ _ prf-cur _ _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Bgtz-l _ _ prf-cur prf-zero _ _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Bgtz-g _ _ prf-cur prf-gzero _ _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Return _ _ prf-cur _ prf-trace) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Alert _ _ prf-cur _) ¬ret-unt = untrusted-s
--- mode-preserved untrusted-s (step-Load-UR _ _ prf-cur _ _) ¬ret-unt = untrusted-s
--- mode-preserved {n} {p} untrusted-s (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode _ _) ¬ret-unt = refl
--- mode-preserved {p = p} {s = s} untrusted-s (step-Ret-Unt _ _ _ pc≤ mode≡false _) ¬ret-unt = ⊥-elim (¬ret-unt (_ , _))
+-- step-over-untrusted p s s' s'' s''' t' t'' t''' refl refl step-a instr-unt step-big step-b = {! !}
 
 
--- only-ret-unt-transitions-to-trusted : ∀ {n} (p : Program n) (s s′ : State) (t : Trace) →
---   Untrusted s →
---   p , s —→ s′ , t →
---   Trusted s′ →
---   ∃ λ _ → lookup (p .Program.instructions) (fromℕ< {s .State.pc} _) ≡ Return-Unt
--- only-ret-unt-transitions-to-trusted p s s′ t untrusted-s (step-Ret-Unt _ _ _ _ _ _) trusted-s′ = 
---   _ , _
--- only-ret-unt-transitions-to-trusted p s s′ t untrusted-s s→s′ trusted-s′ 
---   with lookup (p .Program.instructions) (fromℕ< {s .State.pc} _)
--- ... | Return-Unt = ?
--- ... | _ = ⊥-elim (contradiction trusted-s′ (mode-preserved untrusted-s s→s′ (λ where (r , ()))))
 
--- only-ret-unt-transitions-to-trusted : ∀ {n} (p : Program n) (s s′ : State) (t : Trace) →
---   Untrusted s →
---   p , s —→ s′ , t →
---   Trusted s′ →
---   ∃ λ r → lookup (p .Program.instructions) (fromℕ< {s .State.pc} _) ≡ Return-Unt
 
--- only-ret-unt-transitions-to-trusted p s s′ t untrusted-s s→s′ trusted-s′ 
---   with lookup (p .Program.instructions) (fromℕ< {s .State.pc} _) in eq
--- ... | Return-Unt = {!   !}
--- ... | other-instr = {!   !}
---   ⊥-elim (contradiction trusted-s′ (mode-preserved untrusted-s s→s′ (λ where ( ()))))
 
-  
+
+
+
+
+
+------------------- version III
+
+-- if       a program takes small-step into untrusted mode (call-unt step)
+-- thenfi   the program is in trusted mode at some point after
+-- then
+
+--  There exists some intermediate state s₂ where we return from untrusted modthe program must have taken a big step in untrusted mode, immediately followed by a small step back to trusted
+
+-------------------
+
+-- v3 : ∀ {n jmp-pc} (p : Program n) (s s₁ s₃ : State) (t₁ t₃ : Trace) →
+--                   (s .State.mode ≡ true) →
+--                   (s₁ .State.mode ≡ false) →
+--                 --   (s₂ .State.mode ≡ false) →
+--                   (s₃ .State.mode ≡ true) →
+
+--                   (step-call-unt : p , s —→ s₁ , t₁) →
+--                   (lookup (p .Program.instructions) (fromℕ< (step-prf step-call-unt)) ≡ Call-Unt jmp-pc) →
+                  
+
+--                    ∃[ s₂ ] ∃[ t₂ ] 
+--                     (step-b : p , s₁ —→* s₂ , t₂) ×
+--                     (step-c : p , s₂ —→ s₃ , t₃) ×
+--                     (lookup (p .Program.instructions) (fromℕ< (step-prf step-c)) ≡ Return-Unt) ×
+--                     (∀ s' t' → (p , s₁ —→* s' , t') → (p , s' —→* s₂ , t₂) → s' .State.mode ≡ false)
+                  
+--                 --   (step-ret-unt : p , s₂ —→ s₃ , t₃) →
+--                 --   (lookup (p .Program.instructions) (fromℕ< (step-prf step-ret-unt)) ≡ Return-Unt) →
+
+--                 --   p , s₂ —→* s₃ , t₃
+--                   -- how do I enforce that this big-step doesn't include another return-unt/call-unt/return-unt
+--                   -- maybe its ok if it does. because induction. but i dont really do induction.
+--                   -- should this somehow be a there exists
+
+-- v3 {n} {jmp-pc} p s s₁ s₂ s₃ t₁ t₂ t₃ refl refl refl refl step1 type1 step2 type2 = {!   !}
+
+
+
+------------------- version IV
+
+-- if           a program takes small-step into untrusted mode (call-unt step)
+-- thenif       a program is later in trusted mode
+-- then         the program must have taken a return-unt step
+
+-- Theorem: If we enter untrusted mode via Call-Unt and later reach trusted mode in one step,
+--          then that step must be Return-Unt
+v4 : ∀ {n} {s s₁ s₂ : State} {t₁ t₂ : Trace} (p : Program n)  →
+          -- Initial step: enter untrusted mode via Call-Unt
+          (call-step : p , s —→ s₁ , t₁) →
+          (s .State.mode ≡ true) →
+          (s₁ .State.mode ≡ false) →
+          (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
+          
+          -- Next step: reach trusted mode again
+          (next-step : p , s₁ —→ s₂ , t₂) →
+          (s₂ .State.mode ≡ true) →
+          
+          -- Then this next step must be Return-Unt
+          lookup (p .Program.instructions) (fromℕ< (step-prf next-step)) ≡ Return-Unt
+
+v4 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
+    (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
+    s-true s₁-false (jmp-pc , call-instr) 
+    (step-Ret-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁)
+    s₂-true 
+    = prf-cmd₁

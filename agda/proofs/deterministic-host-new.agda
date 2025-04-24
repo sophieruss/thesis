@@ -36,7 +36,7 @@ det (step-NoOp _ _ prf-cur prf-cmd prf-trace) (step-Ret-Unt _ _ prf-cur₁ prf-c
 det (step-NoOp _ _ prf-cur prf-cmd prf-trace) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-NoOp _ _ prf-cur prf-cmd prf-trace) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-NoOp _ _ prf-cur prf-cmd prf-trace) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-NoOp _ _ prf-cur prf-cmd prf-trace) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-NoOp _ _ prf-cur prf-cmd prf-trace) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det {n} {p} {s} {s₁} {s₂} {t₁} {t₂} (step-Add _ _ prf-cur prf-cmd prf-canStep) (step-Add _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with trans (sym prf-cmd) prf-cmd₁
@@ -52,7 +52,7 @@ det (step-Add _ _ prf-cur prf-cmd prf-canStep) (step-Ret-Unt _ _ prf-cur₁ prf-
 det (step-Add _ _ prf-cur prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Add _ _ prf-cur prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Add _ _ prf-cur prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Add _ _ prf-cur prf-cmd prf-canStep)(step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Add _ _ prf-cur prf-cmd prf-canStep)(step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-Sub _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with trans (sym prf-cmd) prf-cmd₁
@@ -68,7 +68,7 @@ det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-Ret-Unt _ _ prf-cur₁ prf-
 det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Sub _ _ prf-cur prf-cmd prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-Addi _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with trans (sym prf-cmd) prf-cmd₁
@@ -84,7 +84,7 @@ det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-Ret-Unt _ _ prf-cur₁ prf
 det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Addi _ _ prf-cur prf-cmd prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -100,7 +100,7 @@ det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-Ret-Unt _ _ prf-cur₁ prf
 det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Jump _ _ prf-cur prf-canStep prf-cmd) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -117,7 +117,7 @@ det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-Ret-Unt _ _ prf
 det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Bgtz-l _ _ prf-cur prf-zero prf-cmd prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -134,7 +134,7 @@ det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-Ret-Unt _ _ pr
 det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Bgtz-g _ _ prf-cur prf-gzero prf-cmd prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -150,7 +150,7 @@ det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-Re
 det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Call-Unt _ _ prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -166,7 +166,7 @@ det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-Ret-Unt _ _ pr
 det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Ret-Unt _ _ prf-cur prf-canStep prf-mode prf-cmd) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Return _ _ prf-cur prf-cmd) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -182,7 +182,7 @@ det (step-Return _ _ prf-cur prf-cmd) (step-Return _ _ prf-cur₁ prf-cmd₁) wi
 ... | refl = refl , refl
 det (step-Return _ _ prf-cur prf-cmd) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Return _ _ prf-cur prf-cmd) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Return _ _ prf-cur prf-cmd) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Return _ _ prf-cur prf-cmd) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Alert _ _ prf-cur prf-cmd) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -198,7 +198,7 @@ det (step-Alert _ _ prf-cur prf-cmd) (step-Return _ _ prf-cur₁ prf-cmd₁) wit
 det (step-Alert _ _ prf-cur prf-cmd) (step-Alert _ _ prf-cur₁ prf-cmd₁) with trans (sym prf-cmd) prf-cmd₁
 ... | refl = refl , refl
 det (step-Alert _ _ prf-cur prf-cmd) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-Alert _ _ prf-cur prf-cmd) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Alert _ _ prf-cur prf-cmd) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
 det (step-Load-UR _ _ prf-cur prf-cmd prf-canStep) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
@@ -214,20 +214,20 @@ det (step-Load-UR _ _ prf-cur prf-cmd prf-canStep) (step-Return _ _ prf-cur₁ p
 det (step-Load-UR _ _ prf-cur prf-cmd prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
 det (step-Load-UR _ _ prf-cur prf-cmd prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with trans (sym prf-cmd) prf-cmd₁
 ... | refl = refl , refl
-det (step-Load-UR _ _ prf-cur prf-cmd prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Load-UR _ _ prf-cur prf-cmd prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
 
 
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Add _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Sub _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Addi _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Jump _ _ prf-cur₁ prf-canStep₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Bgtz-l _ _ prf-cur₁ prf-zero prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Bgtz-g _ _ prf-cur₁ prf-gzero prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Call-Unt _ _ prf-cur₁ prf-jmp-pc prf-mode₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Ret-Unt _ _ prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
-det (step-put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-NoOp _ _ prf-cur₁ prf-cmd₁ prf-trace) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Add _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Sub _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Addi _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Jump _ _ prf-cur₁ prf-canStep₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Bgtz-l _ _ prf-cur₁ prf-zero prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Bgtz-g _ _ prf-cur₁ prf-gzero prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Call-Unt _ _ prf-cur₁ prf-jmp-pc prf-mode₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Ret-Unt _ _ prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Return _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Alert _ _ prf-cur₁ prf-cmd₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Load-UR _ _ prf-cur₁ prf-cmd₁ prf-canStep₁) with () ← trans (sym prf-cmd) prf-cmd₁
+det (step-Put-UR _ _ prf-cur prf-cmd prf-mode prf-canStep) (step-Put-UR _ _ prf-cur₁ prf-cmd₁ prf-mode₁ prf-canStep₁) with trans (sym prf-cmd) prf-cmd₁
 ... | refl = refl , refl
