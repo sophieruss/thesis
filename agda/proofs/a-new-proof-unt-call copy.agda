@@ -267,24 +267,106 @@ v4 {n} {s} {s₁} {s₂} {t₁} {t₂} p
 
 
 v5 : ∀ {n} {s s₁ s₂ : State} {t₁ t₂ : Trace} (p : Program n) →
-    (s .State.mode ≡ true) →
-    (s₁ .State.mode ≡ false) →
-    (s₂ .State.mode ≡ true) →
+     -- enter untrusted mode Call-Unt
+     (call-step : p , s —→ s₁ , t₁) →
+     (s .State.mode ≡ true) →
+     (s₁ .State.mode ≡ false) →
+     (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
+     
+     -- reach trusted mode again
+    --  (later-step : p , s₁ —→ s₂ , t₂) →
+     (s₂ .State.mode ≡ true) →
+    --  (lookup (p .Program.instructions) (fromℕ< (step-prf later-step)) ≡ Return-Unt) →
+     -- all of above is v4 
+     
+     -- Then there exists some state s' where:
+     -- 1. There's a sequence of steps from s₁ to s' where mode remains false
+     -- 2. The final step from s' to s₂ is Return-Unt
+    --  ∃[ sⱼ ] ∃[ tⱼ ] (p , s₁  *—→ sⱼ , tⱼ × 
+    --                   (∀ {sₖ tₖ} → (p , s₁  *—→ sₖ , tₖ) → (p , sₖ —→ s₂ , t₂) → 
+    --                   (sₖ .State.mode ≡ false)))
+    -- (∀ {sₖ tₖ} → 
+    -- (sₖ .State.mode ≡ false) →          -- all steps stay untrusted
+    (later-step2 : p , s₁ *—→ s₂ , t₂) →
+    (lookup (p .Program.instructions) (fromℕ< (steps-prf later-step2)) ≡ Return-Unt)
+    -- (p , s₁ —→ sₖ , tₖ)         -- steps in untrusted
+    -- where mode stays the same
+    -- )
 
-    (call-step : p , s —→ s₁ , t₁) →
-    (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
-   
-    (big-step : p , s₁ ⇓ s₂ , t₂) →
-    let ( pc , pc<n , cmd-proof) = last-step-is-return-unt big-step
-        in lookup (p .Program.instructions) (fromℕ< pc<n) ≡ Return-Unt
+    -- CHANE TO ∃[ sₖ ] ∃[ tₖ ]
 
-v5 {n} {s} {s₁} {s₂} {t₁} {t₂} 
-    p s-true s₁-false s₂-true
+    -- somehow thereexists any state(s) in between
+
+    -- (lookup (p .Program.instructions) (fromℕ< (step-prf step)) ≡ Return-Unt) →
+    -- (sₖ .State.mode ≡ false))
+  
+v5 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
     (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
-    (jmp-pc , call-instr)
-    eval 
-    with last-step-is-return-unt eval
-... | (_ , _ , prf) = prf
+    s-true s₁-false (jmp-pc , call-instr) s₂-true
+    (Return-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) .s₂ .t₂ prf-cur₁ prf-canStep₁ prf-mode₁ prf-mode₂ prf-cmd₁)
+    = 
+    prf-cmd₁
+
+v5 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
+    (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
+    s-true s₁-false (jmp-pc , call-instr) s₂-true
+    (step—→ .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) s₃ .s₂ t₃ .t₂ refl refl refl x big-step)
+    = 
+    {!   !} --v5 p {!   !} {!   !} refl {!   !} {!   !} big-step
+
+
+
+v6 : ∀ {n} {s₁ s₂ : State} {t₂ : Trace} (p : Program n) →
+    --  (call-step : p , s —→ s₁ , t₁) →
+    --  (s .State.mode ≡ true) →
+     (s₁ .State.mode ≡ false) →
+    --  (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
+     (s₂ .State.mode ≡ true) →
+    (later-step2 : p , s₁ *—→ s₂ , t₂) →
+    (lookup (p .Program.instructions) (fromℕ< (steps-prf later-step2)) ≡ Return-Unt)
+   
+
+  
+-- takes 1 step which is return untrusted
+v6 {n} {s₁} {s₂} {t₂} p 
+    s₁-false 
+    s₂-true
+    (Return-Unt .p _ .s₂ .t₂ prf-cur₁ prf-canStep₁ prf-mode₁ prf-mode₂ prf-cmd₁)
+    = 
+    prf-cmd₁
+
+-- v6 {n} {s₁} {s₂} {t₂} p 
+--     s₁-false 
+--     s₂-true
+--     (step—→ .p _ [[ pc , registers , true , UR , SR , ret-pc ]] .s₂ t₃ .t₂ refl refl refl x big-step)
+--     = 
+--     v6 p s₁-false refl big-step
+--     -- s1 is true, must take return unt step?
+
+-- v6 {n} {s₁} {s₂} {t₂} p 
+--     s₁-false 
+--     s₂-true
+--     (step—→ .p _ [[ pc , registers , false , UR , SR , ret-pc ]] .s₂ t₃ .t₂ refl refl refl small-pre big-step)
+--     = 
+--     -- {!   !}
+--     -- v6 p s₁-false s₂-true small-pre
+--     v6 {!   !} {!   !} {!   !} {!   !} 
+
+-- takes another step(s) in untrusted before reaching s2
+v6 {n} {s₁} {s₂} {t₂} p 
+    s₁-false 
+    s₂-true
+    (step—→ .p .s₁ [[ pc , registers , false , UR , SR , ret-pc ]] .s₂ t₁ .t₂ prf-mode1 prf-mode2 prf-mode3 
+    x 
+        -- (step-Ret-Unt .p .([[ pc , registers , false , UR , SR , ret-pc ]]) prf-cur prf-canStep prf-mode prf-cmd)
+        steps)
+    = {!  !} 
+
+    -- = v6 p s₁-false s₂-true {! x  !} 
+    -- = v4 p {!   !} {!   !} {!   !} {!   !} {!   !} {!   !}
+    -- = v6 p s₁-false {!   !} steps 
+         
+
 
 
 
@@ -299,6 +381,7 @@ v7 p s₁-false s₂-true (big-return-unt _ _ _ prf-cmd) = prf-cmd
 v7 p s₁-false s₂-true (big-step-untrusted prf-mode-init prf-mode-step prf-mode-final prf-step big-step) 
     = 
     v7 p prf-mode-step s₂-true big-step
+-- v7 p _ _ eval with last-step-is-return-unt eval
 
 -- v7 p _ _ eval with last-step-is-return-unt eval
 -- ... | (_ , _ , prf) = prf
