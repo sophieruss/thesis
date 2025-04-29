@@ -251,9 +251,25 @@ v4 : ∀ {n} {s s₁ s₂ : State} {t₁ t₂ : Trace} (p : Program n)  →
 v4 {n} {s} {s₁} {s₂} {t₁} {t₂} p 
     (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
     s-true s₁-false (jmp-pc , call-instr) 
-    (step-Ret-Unt .p .([[ suc _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁)
+    (step-Ret-Unt .p .([[ _ , _ , false , _ , _ , suc _ ]]) prf-cur₁ prf-canStep₁ prf-mode₁ prf-cmd₁)
     s₂-true 
     = prf-cmd₁
+
+
+v7 : ∀ {n} {s₁ s₂ : State} {t₂ : Trace} (p : Program n) →
+    (s₁ .State.mode ≡ false) →
+    (s₂ .State.mode ≡ true) →
+    (eval : p , s₁ ⇓ s₂ , t₂) →
+    let ( pc , pc<n , cmd-proof) = last-step-is-return-unt eval
+        in lookup (p .Program.instructions) (fromℕ< pc<n) ≡ Return-Unt
+
+v7 p s₁-false s₂-true (big-return-unt _ _ _ prf-cmd) = prf-cmd
+v7 p s₁-false s₂-true (big-step-untrusted prf-mode-init prf-mode-step prf-mode-final prf-step big-step) 
+    = 
+    v7 p prf-mode-step s₂-true big-step
+
+-- v7 p _ _ eval with last-step-is-return-unt eval
+-- ... | (_ , _ , prf) = prf
 
 
 ------------------- version V -------------------
@@ -286,19 +302,10 @@ v5 {n} {s} {s₁} {s₂} {t₁} {t₂}
     with last-step-is-return-unt eval
 ... | (_ , _ , prf) = prf
 
-
-
-v7 : ∀ {n} {s₁ s₂ : State} {t₂ : Trace} (p : Program n) →
-    (s₁ .State.mode ≡ false) →
-    (s₂ .State.mode ≡ true) →
-    (eval : p , s₁ ⇓ s₂ , t₂) →
-    let ( pc , pc<n , cmd-proof) = last-step-is-return-unt eval
-        in lookup (p .Program.instructions) (fromℕ< pc<n) ≡ Return-Unt
-
-v7 p s₁-false s₂-true (big-return-unt _ _ _ prf-cmd) = prf-cmd
-v7 p s₁-false s₂-true (big-step-untrusted prf-mode-init prf-mode-step prf-mode-final prf-step big-step) 
-    = 
-    v7 p prf-mode-step s₂-true big-step
-
--- v7 p _ _ eval with last-step-is-return-unt eval
--- ... | (_ , _ , prf) = prf
+-- v5 {n} {s} {s₁} {s₂} {t₁} {t₂} 
+--     p s-true s₁-false s₂-true
+--     (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
+--     (jmp-pc , call-instr)
+--     eval 
+--     =
+    -- v7 p s₁-false s₂-true eval

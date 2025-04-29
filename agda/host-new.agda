@@ -138,9 +138,10 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf-mode : s .State.mode ≡ true ) → --single entry
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Call-Unt jmp-pc) →
     (prf-canStep : s .State.pc < n ∸ 1 ) →    -- is this true? This states that the program MUST return from untrusted. like sorta, but also confused. 
-    -- TODO : newstate = [[ jmp-pc , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
+    -- TODO : 
+    let newstate = [[ jmp-pc , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
 
-    let newstate = [[ (suc (s .State.pc)) , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
+    -- let newstate = [[ (suc (s .State.pc)) , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
         t = if (s .State.mode ) 
             then ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩ -- potential issue
             -- then ⟨ Call-Unt jmp-pc , 0 ∷ 0 ∷ 0 ∷ [] ⟩
@@ -212,6 +213,47 @@ data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set
       → p , s —→ s₁ , t₁
       → p , s —→* s₂ , t₂
 
+
+data _,_⇓_,_ : ∀ {n} → Program n → State → State → Trace → Set where
+  -- Base case: single Return-Unt step
+  big-return-unt :
+    ∀ {n} {p : Program n} {s s' : State} {t} →
+    (prf-mode : s .State.mode ≡ false) →
+    (prf-last : p , s —→ s' , t) →
+    (prf-cur : s .State.pc < n)
+    (prf-cmd : lookup (p .Program.instructions) (fromℕ< prf-cur) ≡ Return-Unt) →
+    p , s ⇓ s' , t
+
+  -- Inductive case: sequence of untrusted steps ending with Return-Unt
+  big-step-untrusted :
+    ∀ {n} {p : Program n} {s s' s'' : State} {t t' : Trace} →
+    (prf-mode-init : s .State.mode ≡ false) →
+    (prf-mode-step : s' .State.mode ≡ false) →
+    (prf-mode-final : s'' .State.mode ≡ false) →
+    (prf-step : p , s —→ s' , t) →
+    (prf-rest : p , s' ⇓ s'' , t') →
+    p , s ⇓ s'' , t' 
+
+
+
+    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
+    --   (prf-cur : s .State.pc < n) →
+    --   (prf-canStep : s .State.ret-pc ≤ n) →
+    --   (same : s ≡ s₁) →
+    --   (prf-mode1 : s .State.mode ≡ false ) →
+    --   (prf-mode2 : s' .State.mode ≡ true ) →
+    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
+    --   p , s *—→ s' , t'
+    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
+    --   (same : s ≡ s₁) →
+    --   (prf-cur : s .State.pc < n) →
+    --   (prf-canStep : s .State.ret-pc ≤ n) →
+    --   (prf-mode1 : s .State.mode ≡ false ) →
+    --   (prf-mode2 : s' .State.mode ≡ true ) →
+    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
+    --   p , s *—→ s' , t'
+
+
 infix 4 _,_—→*_,_✓
 data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → Set where
 
@@ -257,43 +299,27 @@ data _,_*—→_,_ : ∀ {n} → Program n → State → State → Trace → Set
 
 
 
-
-
-data _,_⇓_,_ : ∀ {n} → Program n → State → State → Trace → Set where
-  -- Base case: single Return-Unt step
-  big-return-unt :
+data _,_⇒_,_ : ∀ {n} → Program n → State → State → Trace → Set where
+  -- Single step - trusted mode
+  single-step :
     ∀ {n} {p : Program n} {s s' : State} {t} →
-    (prf-mode : s .State.mode ≡ false) →
-    (prf-last : p , s —→ s' , t) →
-    (prf-cur : s .State.pc < n)
-    (prf-cmd : lookup (p .Program.instructions) (fromℕ< prf-cur) ≡ Return-Unt) →
-    p , s ⇓ s' , t
+    s .State.mode ≡ true →
+    s' .State.mode ≡ true →
+    p , s —→ s' , t →
+    p , s ⇒ s' , t
 
-  -- Inductive case: sequence of untrusted steps ending with Return-Unt
-  big-step-untrusted :
-    ∀ {n} {p : Program n} {s s' s'' : State} {t t' : Trace} →
-    (prf-mode-init : s .State.mode ≡ false) →
-    (prf-mode-step : s' .State.mode ≡ false) →
-    (prf-mode-final : s'' .State.mode ≡ false) →
-    (prf-step : p , s —→ s' , t) →
-    (prf-rest : p , s' ⇓ s'' , t') →
-    p , s ⇓ s'' , t' 
+  -- Big step - untrusted
+  untrusted-computation :
+    ∀ {n} {p : Program n} {s s₁ s₂ : State} {t₁ t₂ : Trace} →
+    s .State.mode ≡ true →
+    s₁ .State.mode ≡ false →
+    s₂ .State.mode ≡ true →
 
-
-
-    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
-    --   (prf-cur : s .State.pc < n) →
-    --   (prf-canStep : s .State.ret-pc ≤ n) →
-    --   (same : s ≡ s₁) →
-    --   (prf-mode1 : s .State.mode ≡ false ) →
-    --   (prf-mode2 : s' .State.mode ≡ true ) →
-    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
-    --   p , s *—→ s' , t'
-    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
-    --   (same : s ≡ s₁) →
-    --   (prf-cur : s .State.pc < n) →
-    --   (prf-canStep : s .State.ret-pc ≤ n) →
-    --   (prf-mode1 : s .State.mode ≡ false ) →
-    --   (prf-mode2 : s' .State.mode ≡ true ) →
-    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
-    --   p , s *—→ s' , t'
+    (call-step : p , s —→ s₁ , t₁) →
+    -- (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
+    (big-step : p , s₁ ⇓ s₂ , t₂) →
+    (trace-proof : t₂ ≡ ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+    (pc-proof : s₂ .State.pc ≡ suc (s .State.pc)) →
+    (reg-proof : s₂ .State.registers ≡ s .State.registers) →
+    -- s₂ ≡ [[ suc (s .State.pc) , s .State.registers , true , k , s .State.registers , suc (s .State.pc) ]] →
+    p , s ⇒ s₂ , t₂
