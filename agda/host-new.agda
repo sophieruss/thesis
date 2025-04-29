@@ -218,7 +218,7 @@ data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → 
   Return : ∀ {n} → (p : Program n) → (s : State) → (t : Trace)                  
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return) →
-    (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
+    -- (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
     p , s —→* s , t ✓
     
   step : ∀ {n} → (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
@@ -231,9 +231,69 @@ data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → 
 
 infix 4 _,_*—→_,_
 data _,_*—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
-    done : ∀ {n} → ∀ (p : Program n) → (s : State) → (t : Trace)
-      → p , s *—→ s , t
+
+    Return-Unt : ∀ {n} → (p : Program n) → (s s' : State) → (t' : Trace)                      
+      (prf-cur : s .State.pc < n) →
+      -- (prf-immed : s' .State.pc ∸ 1 ≡ s .State.pc) →
+      (prf-canStep : s .State.ret-pc ≤ n) →
+      (prf-mode1 : s .State.mode ≡ false ) →
+      (prf-mode2 : s' .State.mode ≡ true ) →
+      (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
+      p , s *—→ s' , t'
+
     step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
-       → (p , s₁ —→ s₂ , t₂)
-       → (p , s *—→  s₁ , t₁ )
-       → (p , s *—→ s₂ , t₂ )
+          → (prf-mode1 : s₂ .State.mode ≡ false )
+          → (prf-mode2 : s₁ .State.mode ≡ false )
+          → (prf-mode3 : s .State.mode ≡ false )
+
+          --  → (p , s₁ —→ s₂ , t₂)
+          --  → (p , s *—→  s₁ , t₁ )
+          --  → (p , s *—→ s₂ , t₂ )
+
+          → p , s —→ s₁ , t₁
+          → p , s₁ *—→ s₂ , t₂
+          → p , s *—→ s₂ , t₂
+
+
+
+
+
+
+data _,_⇓_,_ : ∀ {n} → Program n → State → State → Trace → Set where
+  -- Base case: single Return-Unt step
+  big-return-unt :
+    ∀ {n} {p : Program n} {s s' : State} {t} →
+    (prf-mode : s .State.mode ≡ false) →
+    (prf-last : p , s —→ s' , t) →
+    (prf-cur : s .State.pc < n)
+    (prf-cmd : lookup (p .Program.instructions) (fromℕ< prf-cur) ≡ Return-Unt) →
+    p , s ⇓ s' , t
+
+  -- Inductive case: sequence of untrusted steps ending with Return-Unt
+  big-step-untrusted :
+    ∀ {n} {p : Program n} {s s' s'' : State} {t t' : Trace} →
+    (prf-mode-init : s .State.mode ≡ false) →
+    (prf-mode-step : s' .State.mode ≡ false) →
+    (prf-mode-final : s'' .State.mode ≡ false) →
+    (prf-step : p , s —→ s' , t) →
+    (prf-rest : p , s' ⇓ s'' , t') →
+    p , s ⇓ s'' , t' 
+
+
+
+    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
+    --   (prf-cur : s .State.pc < n) →
+    --   (prf-canStep : s .State.ret-pc ≤ n) →
+    --   (same : s ≡ s₁) →
+    --   (prf-mode1 : s .State.mode ≡ false ) →
+    --   (prf-mode2 : s' .State.mode ≡ true ) →
+    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
+    --   p , s *—→ s' , t'
+    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
+    --   (same : s ≡ s₁) →
+    --   (prf-cur : s .State.pc < n) →
+    --   (prf-canStep : s .State.ret-pc ≤ n) →
+    --   (prf-mode1 : s .State.mode ≡ false ) →
+    --   (prf-mode2 : s' .State.mode ≡ true ) →
+    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
+    --   p , s *—→ s' , t'
