@@ -3,8 +3,8 @@ my super fire thesis
 
 ## Agda
 1. `commands.agda` outlines commands for both machines, as significant overlap
-2. `host.agda` defines the host machine. Its verification is on `deterministic-host-new.agda`
-3. `sentry.agda` defines the sentry machine. Its verification is on `deterministic-sentry-new.agda`
+2. `host.agda` defines the host machine. Its verification is on `deterministic-host.agda`
+3. `sentry.agda` defines the sentry machine. Its verification is on `deterministic-sentry.agda`
 4. `host-and-sentry` is main proof showing systems are in sync
 5. `trivial-proofs` is a collection of perhaps trivial properties of system
 
