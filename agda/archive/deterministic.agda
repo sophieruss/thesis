@@ -1,7 +1,9 @@
-module agda.proofs.deterministic where
+module agda.archive.deterministic where
+
+-- TODO: this is only valid for generic steps. has not been specified for host/agda. 
 
 open import agda.commands
-open import agda.steps
+open import agda.archive.steps
 open import Data.Nat using (ℕ; compare; _≤_; _≥_;  _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; sym; trans; subst)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
@@ -11,8 +13,6 @@ open import Data.Empty using (⊥; ⊥-elim)
 
 open import Data.Nat.Properties using (≤-refl; ≤-reflexive; ≤-trans; ≤-antisym; _≥?_)
 open import Function.Base using (flip)
-
-
 
 
 det : ∀ {n} {p : Program n} {s s₁ s₂ : State}
@@ -73,7 +73,7 @@ det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Add _ _ prf₁ cmd-prf₁) wit
 det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Sub _ _ prf₁ cmd-prf₁) with () ← trans (sym cmd-prf) cmd-prf₁
 det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Addi _ _ prf₁ cmd-prf₁) with () ← trans (sym cmd-prf) cmd-prf₁
 det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Jump _ _ prf₁ prf4 cmd-prf₁) with () ← trans (sym cmd-prf) cmd-prf₁
-det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Bgtz-g _ _ prf₁ prf4 prf5 cmd-prf₁) with trans (sym cmd-prf) cmd-prf₁
+det (step-Bgtz-l _ _ prf prf2 prf3 cmd-prf) (step-Bgtz-g _ _ prf₁ prf4 prf5 cmd-prf₁) with (trans (sym cmd-prf) cmd-prf₁)
 ... | refl with () ← ≤-≡-trans prf5 prf3
 -- I want to prove that prf3 and prf5 could not be the same
 
@@ -104,4 +104,4 @@ det (step-Bgtz-g _ _ prf prf2 prf3 cmd-prf) (step-Bgtz-l _ _ prf₁ prf4 prf5 cm
 -- refl
 -- either the command is the same refl, show args must be the same
 -- the proofs/steps must be different trans,sym
--- bgtz-g and bgtz-l the steps are both bgtz, but the pc is dif     
+-- bgtz-g and bgtz-l the steps are both bgtz, but the pc is dif      

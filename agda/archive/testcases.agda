@@ -1,8 +1,8 @@
 
-module testcases where
+module agda.archive.testcases where
 
-open import commands
-open import steps
+open import agda.commands
+open import agda.archive.steps
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong; sym; trans)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
