@@ -8,7 +8,7 @@ my super fire thesis
 4. `host-to-sentry-new-big` is main proof showing systems are in sync
 5. `a-new-proof-unt-call` is a collection of perhaps trivial properties of system 
 
-### Archive Folder
+#### Archive Folder
 *(Historical versions, abandoned approaches, and paths wrongfully pursued)*  
 - `steps.agda` is the original template for host and sentry. It defines general steps the system can take. Its verification is on `testcases.agda` and `deterministic.agda`
 - `host` `deterministic-host` `sentry` `deterministic-sentry` are all previous iterations
