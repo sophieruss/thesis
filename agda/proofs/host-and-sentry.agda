@@ -1,8 +1,8 @@
-module agda.proofs.host-to-sentry-new-big where
+module agda.proofs.host-and-sentry where
 
 open import agda.commands
-open import agda.host-new  renaming (State to Hstate)
-open import agda.sentry-new
+open import agda.host  renaming (State to Hstate)
+open import agda.sentry
 open import Data.Nat using (ℕ; compare; _≤_; _≥_;  _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; cong; sym; trans; subst)
 open import Data.Vec.Base using (Vec; _∷_; []; replicate; lookup; updateAt; length)
@@ -14,12 +14,11 @@ open import Function.Base using (flip)
 open import Data.Product using (∃; ∃-syntax; _×_; _,_; Σ)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 
+------------------------------------------------------------------------
+-- helper lemmas         
+------------------------------------------------------------------------
 equiv : Hstate → State → Set
 equiv sₕ sₛ = (sₕ .Hstate.pc ≡ sₛ .State.pc) × (sₕ .Hstate.registers ≡ sₛ .State.registers)
-
-proj : Hstate → State
-proj [[ pc , registers , mode , UR , SR , ret-pc ]] = [ pc , registers ]
-
 
 last-step-is-return-unt : ∀ {n} {p : Program n} {s s' : Hstate} {t} →
                          p , s ⇓ s' , t →
@@ -32,9 +31,9 @@ last-step-is-return-unt {n}{p}{s}(big-return-unt prf-mode prf-last prf-cur prf-c
 last-step-is-return-unt (big-step-untrusted prf-mode-init prf-mode-step prf-mode-final prf-step big-step) 
     = last-step-is-return-unt big-step    
 
-
-
-
+------------------------------------------------------------------------
+-- main proof         
+------------------------------------------------------------------------
 
 prf : ∀ {n} {p : Program n} {t : Trace} { h h' : Hstate} {s : State}
     → (h .Hstate.mode ≡ true)
@@ -75,6 +74,7 @@ prf {n} {p} {t} {h} {h'} {s} refl (refl , refl)
     step-Addi t p s prf-cur prf-cmd refl prf-canStep ,
     (refl , refl)
     
+
 prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
     (single-step refl refl (step-Jump {n} {jmp-pc} p ([[ pc , reg , true , _ , _ , _ ]]) prf-cur prf-canStep prf-cmd )) 
     = 
@@ -90,6 +90,7 @@ prf {n} {p} {t} {h} {h'} {s} refl (refl , refl)
     step-Bgtz-l t p [ pc , reg ] prf-cur prf-zero prf-cmd refl prf-canStep ,
     (refl , refl)
 
+
 prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
     (single-step refl refl (step-Bgtz-g {n} {bgtz-pc} p ([[ pc , reg , true , _ , _ , _ ]]) prf-cur prf-gzero prf-cmd prf-canStep)) 
     = 
@@ -97,34 +98,15 @@ prf {n} {p} {t} {h} {h'} {s} refl (refl , refl)
     step-Bgtz-g t p [ pc , reg ] prf-cur prf-canStep prf-gzero prf-cmd refl ,
     (refl , refl)
     
--- prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
---     (step-Call-Unt p ([[ pc , reg , true , _ , _ , _ ]]) prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
---     =
---     [ suc pc , reg ] ,
---     step-Call-Unt-Sentry t p s prf-cur prf-jmp-pc prf-cmd prf-canStep refl ,
---     refl , refl
 
 prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
         (untrusted-computation s-true s₁-false s₂-true 
         (step-Call-Unt p [[ pc , reg , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep)  
         big-step 
-        trace-prf pc-prf reg-prf)  --h' ≡ [[ suc (s .State.pc) , s .State.registers , true , k , s .State.registers , suc (s .State.pc) ]]
+        trace-prf pc-prf reg-prf)
         with last-step-is-return-unt big-step
 ... | (_ , _ , prf) = [ suc pc , reg ] , 
     step-Call-Unt-Sentry t p s prf-cur prf-jmp-pc prf-cmd prf-canStep trace-prf , pc-prf , reg-prf
-
--- v5 {n} {s} {s₁} {s₂} {t₁} {t₂} 
---     p s-true s₁-false s₂-true
---     (step-Call-Unt p [[ _ , _ , true , _ , _ , _ ]] prf-cur prf-jmp-pc prf-mode prf-cmd prf-canStep) 
---     (jmp-pc , call-instr)
---     eval 
---     with last-step-is-return-unt eval
--- ... | (_ , _ , prf) = prf
-
-
-
-
-
 
 
 prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
@@ -134,12 +116,14 @@ prf {n} {p} {t} {h} {h'} {s} refl (refl , refl)
     step-Return t p s prf-cur prf-cmd refl ,
     refl , refl
 
+
 prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
     (single-step refl refl (step-Alert p ([[ pc , reg , true , _ , _ , _ ]]) prf-cur prf-cmd)) 
     =
     [ pc , reg ] ,
     step-Alert t p s prf-cur prf-cmd refl ,
     refl , refl
+
 
 prf {n} {p} {t} {h} {h'} {s} refl (refl , refl) 
     (single-step refl refl (step-Load-UR p ([[ pc , reg , true , _ , _ , _ ]]) prf-cur prf-cmd prf-canStep)) 

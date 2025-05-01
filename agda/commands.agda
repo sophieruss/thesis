@@ -18,13 +18,11 @@ data Instruction : Set where
   Disable : Instruction
   Call-Unt : ℕ → Instruction 
   Call-Unt-Sentry : Instruction 
-  -- Return-Unt : ℕ → Instruction
   Return-Unt : Instruction
   Return : Instruction
   Alert : Instruction
   Load-UR : Fin 32 → Instruction
   Load-UR-Sentry : Fin 32 → ℕ → Instruction
-  Empty : Instruction
   Put-UR : Fin 32 → Instruction
 
 record Program (n : ℕ) : Set where
@@ -43,7 +41,3 @@ record Trace : Set where
   field
     instr : Instruction
     args :  Vec ℕ 3
-    -- valid : ∀ {ur} → instr ≡ Load-UR-Sentry _ ur → ur ≡ Hstate.UR currentHostState
-
-emptyTrace : Trace
-emptyTrace = ⟨ Empty , 0 ∷ 0 ∷ 0 ∷ [] ⟩  

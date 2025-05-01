@@ -1,7 +1,7 @@
-module agda.proofs.a-new-proof-unt-call where
+module agda.proofs.trivial-proofs where
 
 open import agda.commands renaming (State to command-state)
-open import agda.host-new
+open import agda.host
 open import Data.Nat using (ℕ; _<_; _+_; suc; zero)
 open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl; sym; trans; cong; subst; inspect)
 open import Data.Vec.Base using (Vec; lookup; _∷_; [])
@@ -12,19 +12,23 @@ open import Data.Unit using (⊤; tt)
 open import Data.Product using (∃; ∃-syntax; _×_; _,_; Σ; proj₁; proj₂)
 open import Data.Bool using (Bool; true; false; if_then_else_)
 
--- state predicates
-Trusted : State → Set
-Trusted s = s .State.mode ≡ true
 
-Untrusted : State → Set
-Untrusted s = s .State.mode ≡ false
+-- LAST STEP IN UNTRUSTED    
+-- prove that in big step (over untrusted parts) the last step will be return return-unt
+last-step-is-return-unt : ∀ {n} {p : Program n} {s s' : State} {t} →
+                         p , s ⇓ s' , t →
+                         ∃[ my-pc ] 
+                           Σ (my-pc < n) λ thm → 
+                           lookup (p .Program.instructions) (fromℕ< thm) ≡ Return-Unt
 
-------------------------------------------------------------------------
--- helper lemmas         -- call-unt just change UR,  ->just change mode
-------------------------------------------------------------------------
+last-step-is-return-unt {n}{p}{s}(big-return-unt prf-mode prf-last prf-cur prf-cmd) 
+    = s .State.pc , prf-cur , prf-cmd
+last-step-is-return-unt (big-step-untrusted prf-mode-init prf-mode-step prf-mode-final prf-step big-step) 
+    = last-step-is-return-unt big-step                   
+
+
 -- STATE MODE PRESERVED 
--- <goal: mode preserved for all instructions except call-unt, return-unt>
-
+-- mode preserved for all instructions except call-unt, return-unt
 step-prf : ∀ {n} {p : Program n} {s s' t} → p , s —→ s' , t → s .State.pc < n
 step-prf (step-NoOp _ _ prf-cur _ prf-trace) = prf-cur
 step-prf (step-Add _ _ prf-cur _ _) = prf-cur
@@ -39,26 +43,6 @@ step-prf (step-Return _ _ prf-cur _) = prf-cur
 step-prf (step-Alert _ _ prf-cur _) = prf-cur
 step-prf (step-Load-UR _ _ prf-cur _ _) = prf-cur
 step-prf (step-Put-UR _ _ prf-cur _ _ _) = prf-cur
-
--- I want to do step-prf for the last step in steps-prf
-steps-prf : ∀ {n} {p : Program n} {s s' t} → p , s *—→ s' , t → s .State.pc < n
-steps-prf (Return-Unt _ _ _ _ prf-cur prf-canStep prf-mode prf-mode₂ prf-cmd) = prf-cur   --base
-steps-prf (step—→ p s s₁ s' t₁ t₂ p1 p2 p3 one multi) = step-prf one                  -- not recursing. 
--- steps-prf (step—→ p s s₁ s₂ t₁ t₂ p1 p2 p3 one multi) = step-prf {!   !}               
--- steps-prf (step—→ p s s₁ s₂ t₁ t₂ singlestep multistep) = steps-prf multistep --recurse
-
-
-last-step-is-return-unt : ∀ {n} {p : Program n} {s s' : State} {t} →
-                         p , s ⇓ s' , t →
-                         ∃[ my-pc ] 
-                           Σ (my-pc < n) λ thm → 
-                           lookup (p .Program.instructions) (fromℕ< thm) ≡ Return-Unt
-
-last-step-is-return-unt {n}{p}{s}(big-return-unt prf-mode prf-last prf-cur prf-cmd) 
-    = s .State.pc , prf-cur , prf-cmd
-last-step-is-return-unt (big-step-untrusted prf-mode-init prf-mode-step prf-mode-final prf-step big-step) 
-    = last-step-is-return-unt big-step                   
-
 
 mode-preserved : ∀ {n} (p : Program n) (s s' : State) (t : Trace) →
                  (step : p , s —→ s' , t) →
@@ -80,7 +64,8 @@ mode-preserved p s s' t (step-Alert _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Load-UR _ _ _ _ _) _ _ = refl
 mode-preserved p s s' t (step-Put-UR _ _ _ _ mode _) _ _ = mode
 
--- sum lemma: While in untrusted mode, any step that's not Return-Unt preserves untrusted mode
+-- sub lemma
+-- while in untrusted mode, any step that's not Return-Unt preserves untrusted mode
 unt-preserved : ∀ {n} {s s' : State} {t : Trace} (p : Program n) →
                  (s .State.mode ≡ false) →
                  (step : p , s —→ s' , t) →
@@ -102,17 +87,12 @@ unt-preserved p s-false (step-Load-UR .p _ prf-cur prf-cmd prf-canStep) ¬ret = 
 unt-preserved p s-false (step-Put-UR .p _ prf-cur prf-cmd prf-mode prf-canStep) ¬ret = refl
 
 
-
-------------------------------------------------------------------------
 -- SWITCH TO UNTRUSTED
--- <goal: only call-unt can switch host mode to untrusted>
-
+-- only call-unt can switch host mode to untrusted
 go-untrusted : ∀ {n} (p : Program n) (s s' : State) (t : Trace) →
                 (step : p , s —→ s' , t) →
                 (s .State.mode ≡ true) →
                 (s' .State.mode ≡ false) →
-                -- (Trusted s) →
-                -- (Untrusted s') →
                 ∃[ jmp-pc ] (lookup (p .Program.instructions) (fromℕ< (step-prf step)) ≡ Call-Unt jmp-pc)
       
 go-untrusted p s s' t (step-Call-Unt {n} {jmp-pc} _ _ _ _ mode cmd _) mode-true mode-false = jmp-pc , cmd
@@ -129,10 +109,8 @@ go-untrusted p s s' t (step-Alert _ _ _ _) mode-true mode-false with () ← (tra
 go-untrusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false)  
 go-untrusted p s s' t (step-Put-UR _ _ _ _ mode _) mode-true mode-false with () ← (trans (sym mode-true) mode) 
 
-------------------------------------------------------------------------
 -- SWITCH TO TRUSTED
--- <goal: only return-unt can switch host mode to trusted>
-
+-- only return-unt can switch host mode to trusted
 go-trusted : ∀ {n} (p : Program n) (s s' : State) (t : Trace) →
                 (step : p , s —→ s' , t) →
                 (s .State.mode ≡ false) →
@@ -151,12 +129,12 @@ go-trusted p s s' t (step-Return _ _ _ _) mode-true mode-false with () ← (tran
 go-trusted p s s' t (step-Alert _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false) 
 go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (trans (sym mode-true) mode-false) 
 
-------------------------------------------------------------------------
-------------------------------------------------------------------------
+
+
+-- Rest is a playground
 
 -- MAIN THM       
 -- <goal: um not sure>
-
 ------------------- version I
 -- if       program has a final return 
 -- then if  there is a call-untrusted, 
@@ -186,8 +164,6 @@ go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (t
 --                   (lookup (p .Program.instructions) (fromℕ< (step-prf after-bigstep)) ≡ Return-Unt)
 
 -- step-over-untrusted p s s' s'' s''' t' t'' t''' refl refl step-a instr-unt step-big step-b = {! !}
-
-
 
 
 ------------------- version III -------------------
@@ -223,7 +199,6 @@ go-trusted p s s' t (step-Load-UR _ _ _ _ _) mode-true mode-false with () ← (t
 --                   -- should this somehow be a there exists
 
 -- v3 {n} {jmp-pc} p s s₁ s₂ s₃ t₁ t₂ t₃ refl refl refl refl step1 type1 step2 type2 = {!   !}
-
 
 
 ------------------- version IV -------------------

@@ -1,4 +1,4 @@
-module agda.host-new where
+module agda.host where
 
 open import agda.commands hiding (State)
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
@@ -25,7 +25,6 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
   step-NoOp : ∀ {n} {t : Trace} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n ) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ NoOp) →
-    -- (prf-canStep : s .State.pc < n ∸ 1 ) → 
     (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
     p , s —→ [[  (s .State.pc) , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , t
@@ -88,26 +87,9 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
       
     in p , s —→ newstate , t
-
-  -- step-Jump : ∀ {n jmp-pc t} → (p : Program n) → (s : State) →                         
-  --   (prf-cur : s .State.pc < n) →
-  --   (prf-canStep : jmp-pc < n) → 
-  --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ (Jump jmp-pc)) →
-  --   let
-  --     jump-trace = ⟨ Jump jmp-pc , jmp-pc ∷ 0 ∷ 0 ∷ [] ⟩
-  --     noop-trace = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
-  --   in
-  --   (prf-trace : (t ≡ jump-trace) ⊎ (t ≡ noop-trace)) → 
-    
-  --   let 
-  --     newstate = [[ jmp-pc , (s .State.registers) , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]]
-  --     t = if (s .State.mode) then jump-trace else noop-trace
-  --   in 
-  --   p , s —→ newstate , t
   
   step-Bgtz-l : ∀ {n bgtz-pc} → {src : Fin 32} →  (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
-    -- (prf-bgtz-pc : bgtz-pc < n) → -- do i need this? should i accept programs where this is wrong, but never hit. 
     (prf-zero : (lookup (s .State.registers) src) ≡ 0 ) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ (Bgtz src bgtz-pc)) →
     (prf-canStep : s .State.pc < n ∸ 1 ) → 
@@ -135,25 +117,20 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
   step-Call-Unt : ∀ {n jmp-pc} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) →                 
     (prf-jmp-pc : jmp-pc < n) → 
-    (prf-mode : s .State.mode ≡ true ) → --single entry
+    (prf-mode : s .State.mode ≡ true ) →       --single entry
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Call-Unt jmp-pc) →
-    (prf-canStep : s .State.pc < n ∸ 1 ) →    -- is this true? This states that the program MUST return from untrusted. like sorta, but also confused. 
-    -- TODO : 
+    (prf-canStep : s .State.pc < n ∸ 1 ) →     -- program must be able to return from untrusted, to hit final state
     let newstate = [[ jmp-pc , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
-
-    -- let newstate = [[ (suc (s .State.pc)) , (s .State.registers) , false , s .State.UR , (s .State.registers) , (suc (s .State.pc)) ]]
         t = if (s .State.mode ) 
-            then ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩ -- potential issue
-            -- then ⟨ Call-Unt jmp-pc , 0 ∷ 0 ∷ 0 ∷ [] ⟩
+            then ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩
             else ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
       
     in p , s —→ newstate , t
 
   step-Ret-Unt : ∀ {n} → (p : Program n) → (s : State) →                         
-    (prf-cur : s .State.pc < n) →      -- Don't need? Checks if steps off end, but stepping off end is the ret-pc part.
-    -- Is there a pc = 0. Do I need to be doing pc < n+1
-    (prf-canStep : s .State.ret-pc ≤ n) →    -- can this be ≤, or would = n mean stepping off?
-    (prf-mode : s .State.mode ≡ false ) → -- single entry
+    (prf-cur : s .State.pc < n) →             -- Don't need? Checks if steps off end, but stepping off end is the ret-pc part.
+    (prf-canStep : s .State.ret-pc ≤ n) →     -- can this be ≤, or would = n mean stepping off?
+    (prf-mode : s .State.mode ≡ false ) →     -- single entry
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → --if i can prove deterministic without this line, maybe i am fine.
 
     let newstate = [[ s .State.ret-pc , s .State.SR , true , s .State.UR , s .State.SR , s .State.ret-pc ]]
@@ -165,9 +142,6 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
   step-Return : ∀ {n} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return) →
-    -- (prf-trace : t ≡ ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
-
-    -- p , s —→ s , t
     p , s —→ s , ⟨ Return , 0 ∷ 0 ∷ 0 ∷ [] ⟩
 
   step-Alert : ∀ {n} → (p : Program n) → (s : State) →                         
@@ -187,10 +161,8 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
          
         h = [[ (suc (s .State.pc)) , r , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]]
             
-    -- in p , s —→ [[ (suc (s .State.pc)) , r , s .State.mode , s .State.UR , s .State.SR , s .State.ret-pc ]] , t
    in p , s —→ h , t
 
-  -- enables user to put a value into UR
   step-Put-UR : ∀ {n} → {r1 : Fin 32} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Put-UR r1) →
@@ -204,6 +176,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     in p , s —→ newstate , t
 
 
+-- multiple steps possible
 infix 4 _,_—→*_,_
 data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set where
     done : ∀ {n} → ∀ (p : Program n) → (s : State) → (t : Trace)
@@ -213,7 +186,7 @@ data _,_—→*_,_ : ∀ {n} → Program n → State → State → Trace → Set
       → p , s —→ s₁ , t₁
       → p , s —→* s₂ , t₂
 
-
+-- big step over untrusted
 data _,_⇓_,_ : ∀ {n} → Program n → State → State → Trace → Set where
   -- Base case: single Return-Unt step
   big-return-unt :
@@ -234,71 +207,7 @@ data _,_⇓_,_ : ∀ {n} → Program n → State → State → Trace → Set whe
     (prf-rest : p , s' ⇓ s'' , t') →
     p , s ⇓ s'' , t' 
 
-
-
-    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
-    --   (prf-cur : s .State.pc < n) →
-    --   (prf-canStep : s .State.ret-pc ≤ n) →
-    --   (same : s ≡ s₁) →
-    --   (prf-mode1 : s .State.mode ≡ false ) →
-    --   (prf-mode2 : s' .State.mode ≡ true ) →
-    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
-    --   p , s *—→ s' , t'
-    -- Return-Unt : ∀ {n} → (p : Program n) → (s s₁ s' : State) → (t' : Trace)                      
-    --   (same : s ≡ s₁) →
-    --   (prf-cur : s .State.pc < n) →
-    --   (prf-canStep : s .State.ret-pc ≤ n) →
-    --   (prf-mode1 : s .State.mode ≡ false ) →
-    --   (prf-mode2 : s' .State.mode ≡ true ) →
-    --   (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
-    --   p , s *—→ s' , t'
-
-
-infix 4 _,_—→*_,_✓
-data _,_—→*_,_✓ : ∀ {n} → Program n → State → State → Trace → Set where
-
-  Return : ∀ {n} → (p : Program n) → (s : State) → (t : Trace)                  
-    (prf-cur : s .State.pc < n) → 
-    (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return) →
-    -- (prf-trace : t ≡ ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
-    p , s —→* s , t ✓
-    
-  step : ∀ {n} → (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
-    → p , s₁ —→* s₂ , t₂ ✓
-    → p , s —→ s₁ , t₁
-    → p , s —→* s₂ , t₂ ✓
-
-
-  
-
-infix 4 _,_*—→_,_
-data _,_*—→_,_ : ∀ {n} → Program n → State → State → Trace → Set where
-
-    Return-Unt : ∀ {n} → (p : Program n) → (s s' : State) → (t' : Trace)                      
-      (prf-cur : s .State.pc < n) →
-      -- (prf-immed : s' .State.pc ∸ 1 ≡ s .State.pc) →
-      (prf-canStep : s .State.ret-pc ≤ n) →
-      (prf-mode1 : s .State.mode ≡ false ) →
-      (prf-mode2 : s' .State.mode ≡ true ) →
-      (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Return-Unt) → 
-      p , s *—→ s' , t'
-
-    step—→ : ∀ {n} → ∀ (p : Program n) (s s₁ s₂ : State) (t₁ t₂ : Trace)
-          → (prf-mode1 : s₂ .State.mode ≡ false )
-          → (prf-mode2 : s₁ .State.mode ≡ false )
-          → (prf-mode3 : s .State.mode ≡ false )
-
-          --  → (p , s₁ —→ s₂ , t₂)
-          --  → (p , s *—→  s₁ , t₁ )
-          --  → (p , s *—→ s₂ , t₂ )
-
-          → p , s —→ s₁ , t₁
-          → p , s₁ *—→ s₂ , t₂
-          → p , s *—→ s₂ , t₂
-
-
-
-
+-- semantics enforcing single trusted step or big step over untrusted
 data _,_⇒_,_ : ∀ {n} → Program n → State → State → Trace → Set where
   -- Single step - trusted mode
   single-step :
@@ -316,10 +225,8 @@ data _,_⇒_,_ : ∀ {n} → Program n → State → State → Trace → Set whe
     s₂ .State.mode ≡ true →
 
     (call-step : p , s —→ s₁ , t₁) →
-    -- (∃[ jmp-pc ] lookup (p .Program.instructions) (fromℕ< (step-prf call-step)) ≡ Call-Unt jmp-pc) →
     (big-step : p , s₁ ⇓ s₂ , t₂) →
     (trace-proof : t₂ ≡ ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
     (pc-proof : s₂ .State.pc ≡ suc (s .State.pc)) →
     (reg-proof : s₂ .State.registers ≡ s .State.registers) →
-    -- s₂ ≡ [[ suc (s .State.pc) , s .State.registers , true , k , s .State.registers , suc (s .State.pc) ]] →
     p , s ⇒ s₂ , t₂

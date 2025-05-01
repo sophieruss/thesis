@@ -1,4 +1,4 @@
-module agda.sentry-new where
+module agda.sentry where
 
 open import agda.commands
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
@@ -14,7 +14,6 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ NoOp) →
     (prf-trace : t ≡ ⟨ NoOp , (0 ∷ 0 ∷ 0 ∷ []) ⟩) →
-    -- (prf-canStep : s .State.pc < n ∸ 1 ) → 
 
     t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
    
@@ -71,7 +70,6 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
   
   step-Bgtz-l : ∀ {n bgtz-pc} → {src : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
-    -- (prf-bgtz-pc : bgtz-pc < n) → 
     (prf-zero : (lookup (s .State.registers) src) ≡ 0 ) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ (Bgtz src bgtz-pc)) →
     (prf-trace : t ≡ ⟨ Bgtz src bgtz-pc , lookup (s .State.registers) src ∷  suc (s .State.pc) ∷ 0 ∷ [] ⟩) →
@@ -95,30 +93,18 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-canStep : jmp-pc < n) →                                                           -- Can i have this as a check?  The sentry shouldn't need it, but it makes the proof easier? But maybe that gets rid of the point of the proof and proof is trivial at that point
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Call-Unt jmp-pc) → -- Am I allowed to send jmp-pc? Why not I guess? beard says yes.
     (prf-canReturn : s .State.pc < n ∸ 1) → 
-    -- (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Call-Unt-Sentry) → 
-
     (prf-trace : t ≡ ⟨ Call-Unt-Sentry , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
     t , p , s —→ [ (suc (s .State.pc)) , (s .State.registers) ] 
-   
-  -- step-Load-UR : ∀ {n temp} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
-  --       (prf-cur : s .State.pc < n) → 
-  --       (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR-Sentry dest temp) → 
-  --       --TODO: what does the sentry see for the load ur command? It wouldn't be the same as the host. but also its getting its instructions from trace/the host, so maybe?
-  --       (prf-canStep : s .State.pc < n ∸ 1 ) → 
-  --       (prf-trace : t ≡ ⟨ Load-UR dest , temp ∷ 0 ∷ 0 ∷ [] ⟩) →
-  --       let r = updateAt (s .State.registers) dest (λ x → (temp))
-  --       in t , p , s —→ [ (suc (s .State.pc)) , r ]
-
 
   step-Load-UR : ∀ {n temp} {dest : Fin 32} → (t : Trace) → (p : Program n) → (s : State) →                       
       (prf-cur : s .State.pc < n) → 
       (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) → -- exact same instruction as host
       (prf-canStep : s .State.pc < n ∸ 1 ) → 
       (prf-trace : t ≡ ⟨ Load-UR dest , temp  ∷ 0 ∷ 0 ∷ [] ⟩) →
-
+      
       let r = updateAt (s .State.registers) dest (λ x → (temp))
-                 
+      
       in t , p , s —→ [ (suc (s .State.pc)) , r ]
 
   step-Return : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
@@ -134,9 +120,7 @@ data _,_,_—→_ : ∀ {n} → Trace → Program n → State → State → Set 
     (prf-trace : t ≡ ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩) →
 
     t , p , s —→ s  
-  
-  -- step-Done : ∀ {n} → (t : Trace) → (p : Program n) → (s : State) →                     
-  --   t , p , s —→ [ (s .State.pc) , (s .State.registers) ]
+
     
 infix 4 _,_,_—→*_
 data _,_,_—→*_ : ∀ {n} → Trace → Program n → State → State → Set where
