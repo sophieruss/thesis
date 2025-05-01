@@ -255,7 +255,6 @@ v4 {n} {s} {s₁} {s₂} {t₁} {t₂} p
     s₂-true 
     = prf-cmd₁
 
-
 v7 : ∀ {n} {s₁ s₂ : State} {t₂ : Trace} (p : Program n) →
     (s₁ .State.mode ≡ false) →
     (s₂ .State.mode ≡ true) →

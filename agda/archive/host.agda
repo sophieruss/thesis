@@ -1,4 +1,4 @@
-module agda.host where
+module agda.archive.host where
 
 --old version of host. This works with postulate-prf
 

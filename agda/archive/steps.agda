@@ -1,4 +1,4 @@
-module agda.steps where
+module agda.archive.steps where
 
 open import agda.commands 
 open import Data.Nat using (ℕ; compare; _≤_; _<_; _>_; _+_; _∸_; zero; suc; s<s; z<s; z≤n; s≤s )
