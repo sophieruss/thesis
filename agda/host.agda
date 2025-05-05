@@ -149,7 +149,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Alert) →
     p , s —→ s , ⟨ Alert , 0 ∷ 0 ∷ 0 ∷ [] ⟩
 
-  step-Load-UR : ∀ {n} {t : Trace} → {dest : Fin 32} → (p : Program n) → (s : State) →                         
+  step-Load-UR : ∀ {n} → {dest : Fin 32} → (p : Program n) → (s : State) →                         
     (prf-cur : s .State.pc < n) → 
     (prf-cmd : (lookup (p .Program.instructions) (fromℕ< prf-cur)) ≡ Load-UR dest) →
     (prf-canStep : s .State.pc < n ∸ 1 ) → 
@@ -170,7 +170,7 @@ data _,_—→_,_ : ∀ {n} → Program n → State → State → Trace → Set 
     (prf-canStep : s .State.pc < n ∸ 1 ) → 
 
     let r1_val = lookup (s .State.registers) r1
-        newstate = [[ (suc (s .State.pc)) , s .State.SR , false , r1_val , s .State.SR , s .State.ret-pc ]]
+        newstate = [[ (suc (s .State.pc)) , (s .State.registers) , false , r1_val , s .State.SR , s .State.ret-pc ]]
         t = ⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩
    
     in p , s —→ newstate , t

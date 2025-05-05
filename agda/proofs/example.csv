@@ -1,0 +1,33 @@
+NoOp
+Addi 1 0 4
+Call-Unt 9
+Load-UR 2
+Add 3 2 2 
+Sub 5 3 1 
+Bgtz 5 8
+Return 
+Alert
+Addi 10 0 2
+Put-UR 10
+Return-Unt
+
+
+
+# English - square root untrusted
+# assume r0 is zero register
+#NoOp
+#Addi 1 0 4          given val 4
+#Call-Unt 9         sqrt calc
+#Load-UR 2           put UR value into #1
+#Add 3 2 2           check by squaring 
+#Sub 5 2 3           compare values (should do it both ways since N, ==0)
+#Bgtz 5 8            Branch reg_being_compared, pc_jump_to (ideally bgtz-l since ==0 so pc++)
+
+#Return              same
+#Alert               not same
+#--
+#Addi 0 0 2          fancy math. sqrt(4) = 2    
+#Put-UR 0            put answer in UR
+#Return-Unt          go back to trusted
+
+

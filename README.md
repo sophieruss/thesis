@@ -7,9 +7,10 @@ my super fire thesis
 3. `sentry.agda` defines the sentry machine. Its verification is on `deterministic-sentry.agda`
 4. `host-and-sentry` is main proof showing systems are in sync
 5. `trivial-proofs` is a collection of perhaps trivial properties of system
+6. `example.csv` is an example program.  Host and sentry proofs are in `example.agda`
 
 #### Archive Folder
-*(Historical versions, abandoned approaches, and paths wrongfully pursued)*  
+*(Historical versions and abandoned approaches)*  
 - `steps.agda` is the original template for host and sentry. It defines general steps the system can take. Its verification is on `testcases.agda` and `deterministic.agda`
 - `host` `deterministic-host` `sentry` `deterministic-sentry` are all previous iterations
 - `postulate-prf` was the iteration of host-sentry proof that attempted to prove that if sentry took a step, host could take an equivalent step(s). It requires a postulate, and generally has issues.
