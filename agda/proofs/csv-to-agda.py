@@ -1,10 +1,8 @@
 # --------------------------
 # Configuration and Constants
 # --------------------------
-# INPUT = "Python Simulator/programs/basic_loop.csv"
-# INPUT = "Python Simulator/programs/fib.csv"
-INPUT = "Agda/archive/programs/untrust.csv"
-OUTPUT = 'Agda/archive/programs/outputs/OUT.agda'
+INPUT = "Agda/proofs/example.csv"
+OUTPUT = 'Agda/proofs/OUTPUT.agda'
 MAX_STATES = 12
 firstline = OUTPUT.replace('/', '.').replace('.agda', '')
 
@@ -113,11 +111,11 @@ def helper(line, pc):
             
             next_state.mode = False                             
             next_state.ret_pc = pc + 1
-            next_state.SR = num_states-1 #I think this will give previous reg state                                   
+            next_state.SR = num_states  #I think this will give previous reg state                                   
             
             
         case "Return-Unt":
-            reg = prev_reg.copy()
+            reg = states[srs].registers
             prog = "Return-Unt"
             trace = "⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
             next_state.mode = True
@@ -153,6 +151,9 @@ def helper(line, pc):
         case _:
             prog = "NoOp"
             trace = "⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
+    
+    if mode is False:
+        trace = "⟨ NoOp , 0 ∷ 0 ∷ 0 ∷ [] ⟩"
 
     # Update state
     if states[num_states-1]:
@@ -177,16 +178,35 @@ def proof_helper(prog, stateA, trace):
         case 'Addi': return f"step-Addi prog state-{stateA} ? refl ?"
         case 'Jump': return f"step-Jump prog state-{stateA} ? ? refl ?"
         case 'Bgtz':
-            return (f"step-Bgtz-g prog state-{stateA} ? ? refl ?" 
+            return (f"step-Bgtz-g prog state-{stateA} ? refl refl ?" 
                    if int(trace.split()[6]) > 0 else 
-                   f"step-Bgtz-l prog state-{stateA} ? ? refl ?")
-        case 'Call-Unt': return f"step-Call-Unt prog state-{stateA} ? ? ? refl ?"
-        case 'Return-Unt': return f"step-Ret-Unt prog state-{stateA} ? ? ? refl"
+                   f"step-Bgtz-l prog state-{stateA} ? refl refl ?")
+        case 'Call-Unt': return f"step-Call-Unt prog state-{stateA} ? ? refl refl ?"
+        case 'Return-Unt': return f"step-Ret-Unt prog state-{stateA} ? ? refl refl"
         case 'Return': return f"step-Return prog state-{stateA} ? refl"
         case 'Alert': return f"step-Alert prog state-{stateA} ? refl"
         case 'Load-UR': return f"step-Load-UR prog state-{stateA} ? refl ?"
-        case 'Put-UR': return f"step-Put-UR prog state-{stateA} ? refl ? ? ?"
+        case 'Put-UR': return f"step-Put-UR prog state-{stateA} ? refl refl ?"
         case _: return f"step-NoOp prog state-{stateA} ? refl refl"
+        
+def sentry_proof_helper(prog, stateA, trace):
+    """Generate Agda proof steps for different instructions"""
+    match prog.split()[0]:
+        case 'Add': return f"step-Add τ-{stateA} prog (proj state-{stateA}) ? refl refl ?"
+        case 'Sub': return f"step-Sub τ-{stateA} prog (proj state-{stateA}) ? refl refl ?"
+        case 'Addi': return f"step-Addi τ-{stateA} prog (proj state-{stateA}) ? refl refl ?"
+        case 'Jump': return f"step-Jump τ-{stateA} prog (proj state-{stateA}) ? ? refl refl"
+        case 'Bgtz':
+            return (f"step-Bgtz-g τ-{stateA} prog (proj state-{stateA}) ? ? refl refl refl" 
+                   if int(trace.split()[6]) > 0 else 
+                   f"step-Bgtz-l τ-{stateA} prog (proj state-{stateA}) ? refl refl refl ?")
+        case 'Call-Unt': return f"step-Call-Unt-Sentry τ-{stateA} prog (proj state-{stateA}) ? ? refl ? refl"
+        # case 'Return-Unt': return f"step-Ret-Unt τ-{stateA} prog (proj state-{stateA}) ? ? refl refl"
+        case 'Return': return f"step-Return τ-{stateA} prog (proj state-{stateA}) ? refl refl"
+        case 'Alert': return f"step-Alert τ-{stateA} prog (proj state-{stateA}) ? refl refl"
+        case 'Load-UR': return f"step-Load-UR τ-{stateA} prog (proj state-{stateA}) ? refl ? refl"
+        # case 'Put-UR': return f"step-Put-UR τ-{stateA} prog (proj state-{stateA}) ? refl refl ?"
+        case _: return f"step-NoOp τ-{stateA} prog (proj state-{stateA}) ? refl refl"
 
 def readfile():    
     """Read input file and return non-empty lines"""
@@ -203,7 +223,7 @@ def readfile():
 # --------------------------
 def main():
     global program, traces, pcs, states, num_states
-    
+        
     # Initialize
     num_states = 0
     f = readfile()
@@ -233,6 +253,10 @@ def main():
     pcs = pcs[:num_states]
     states = states[:num_states]
     
+    absolute_program = sorted([(pcs[i], program[i]) for i in range(num_states)], key=lambda x: x[0])
+    absolute_program = [instr for _, instr in absolute_program]
+
+    
     # Write Agda output file
     with open(OUTPUT, 'w') as f:
         # Write header
@@ -257,7 +281,7 @@ open import Agda.Builtin.List\n\n""")
         
         # Write program definition
         f.write(f"prog : Program {len(registers)}\n")
-        f.write(f"prog = program ({agdaList(program)})\n")
+        f.write(f"prog = program ({agdaList(absolute_program)})\n")
         
         # Write registers
         for i in range(len(registers)):
@@ -282,15 +306,68 @@ open import Agda.Builtin.List\n\n""")
         # Write proof steps
         for i in range(len(traces)-1):
             if i == 0 or i == len(traces)-2:  # Edge cases
-                f.write(f"-- {i}→{i+1} : prog , state-{i} —→ state-{i+1} , τ-{i}\n")
-                proof = proof_helper(program[i], i, traces[i])
-                f.write(f"-- {i}→{i+1} = {proof}\n")
+                if i == 0:
+                    f.write(f"-- Don't print the first step. This is a NoOp that sets up the world\n")
+                    f.write(f"-- {i}→{i+1} : prog , state-{i} —→ state-{i+1} , τ-{i}\n")
+                else:
+                    f.write(f"-- This last step parses weird. Case by case at the moment. Double check this.\n")
+                    if program[i] == ("Return") or program[i].startswith("Alert"):
+                        f.write(f"{i}→{i+1} : prog , state-{i} —→ state-{i} , τ-{i}\n")
+                        proof = proof_helper(program[i], i, traces[i])
+                        f.write(f"{i}→{i+1} = {proof}\n")
+                    else:
+                        f.write(f"Maybe bad program? Does not end in Return or Alert.\n")
+                        f.write(f"-- {i}→{i+1} : prog , state-{i} —→ state-{i+1} , τ-{i}\n")
+                        proof = proof_helper(program[i], i, traces[i])
+                        f.write(f"-- {i}→{i+1} = {proof}\n")
             else:
                 f.write(f"{i}→{i+1} : prog , state-{i} —→ state-{i+1} , τ-{i}\n")
                 proof = proof_helper(program[i], i, traces[i])
                 f.write(f"{i}→{i+1} = {proof}\n")
             
-    print(f"✔ Agda output written to {OUTPUT}")
+        print(f"✔ Host Agda output written to {OUTPUT}")
+
+
+
+        # write_sentry
+        f.write(f"\n\n-- Sentry\n")
+        i = 1
+        while i < len(traces) - 1:
+            if i == len(traces)-2:  # Edge cases
+                f.write(f"-- This last step parses weird. Case by case at the moment. Double check this.\n")
+                if program[i] == ("Return") or program[i].startswith("Alert"):
+                    f.write(f"s_{i}→{i+1} : τ-{i} , prog , (proj state-{i}) —→ (proj state-{i})\n")
+                    proof = sentry_proof_helper(program[i], i, traces[i])
+                    f.write(f"s_{i}→{i+1} = {proof}\n")
+                else:
+                    f.write(f"Maybe bad program? Does not end in Return or Alert.\n")
+                    f.write(f"-- s_{i}→{i+1} : prog , (proj state-{i}) —→ (proj state-{i+1}) , τ-{i}\n")
+                    proof = sentry_proof_helper(program[i], i, traces[i])
+                    f.write(f"-- s_{i}→{i+1} = {proof}\n")
+                i +=1
+            else:
+                if program[i].startswith("Call-Unt"):
+                    # Find matching Return-Unt
+                    end = i + 1
+                    while end < len(traces)-1 and "Return-Unt" not in program[end]:
+                        end += 1
+                    end += 1
+                    # Write the combined step
+                    f.write(f"s_{i}→{end} : τ-{i} , prog , (proj state-{i}) —→ (proj state-{end})\n")
+                    proof = sentry_proof_helper(program[i], i, traces[i])
+                    f.write(f"s_{i}→{end} = {proof}\n")
+                    i = end
+                else:
+                    # Normal step
+                    f.write(f"s_{i}→{i+1} : τ-{i} , prog , (proj state-{i}) —→ (proj state-{i+1})\n")
+                    proof = sentry_proof_helper(program[i], i, traces[i])
+                    f.write(f"s_{i}→{i+1} = {proof}\n")
+                    i += 1
+                
+                
+        print(f"✔ Sentry Agda output written to {OUTPUT}")
+
+
 
 if __name__ == "__main__":
     main()

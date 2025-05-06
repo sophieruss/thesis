@@ -7,7 +7,8 @@ my super fire thesis
 3. `sentry.agda` defines the sentry machine. Its verification is on `deterministic-sentry.agda`
 4. `host-and-sentry` is main proof showing systems are in sync
 5. `trivial-proofs` is a collection of perhaps trivial properties of system
-6. `example.csv` is an example program.  Host and sentry proofs are in `example.agda`
+6. `example.csv` is an example program. Host and Sentry proofs are in `example.agda`
+7. `csv-to-agda.py` converts a valid .csv program to an Agda verified host and Sentry proof. Successfully tested on `example.csv`
 
 #### Archive Folder
 *(Historical versions and abandoned approaches)*  
